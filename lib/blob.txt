@@ -1,0 +1,33 @@
+//////////////////////////////////////////////////////////////
+// get blobs and filter them using its area
+/////////////////////////////////////////////////////////////
+CBlobResult blobs;
+int i;
+CBlob *currentBlob;
+IplImage *original, *originalThr;
+
+// load an image and threshold it
+original = cvLoadImage("pic1.png", 0);
+cvThreshold( original, originalThr, 100, 0, 255, CV_THRESH_BINARY );
+
+// find non-white blobs in thresholded image
+blobs = CBlobResult( originalThr, NULL, 255 );
+// exclude the ones smaller than param2 value
+blobs.Filter( blobs, B_EXCLUDE, CBlobGetArea(), B_LESS, param2 );
+
+// get mean gray color of biggest blob
+CBlob biggestBlob;
+CBlobGetMean getMeanColor( original );
+double meanGray;
+
+blobs.GetNth( CBlobGetArea(), 0, biggestBlob );
+meanGray = getMeanColor( biggestBlob );
+
+// display filtered blobs
+cvMerge( originalThr, originalThr, originalThr, NULL, displayedImage );
+
+for (i = 0; i < blobs.GetNumBlobs(); i++ )
+{
+        currentBlob = blobs.GetBlob(i);
+        currentBlob->FillBlob( displayedImage, CV_RGB(255,0,0));
+}
