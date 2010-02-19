@@ -120,7 +120,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="false"
-				AdditionalIncludeDirectories="&quot;C:\Users\Nil\Documents\Visual Studio 2008\Projects\rtot\include\boost&quot;;..\include\"
+				AdditionalIncludeDirectories="..\include\;..\include\boost"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
