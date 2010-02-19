@@ -110,8 +110,7 @@ void on_mouse( int event, int x, int y, int flags, void* param )
 }
 
 
-CvScalar hsv2rgb( float c_h )
-{
+CvScalar hsv2rgb( float c_h ) {
 	int rgb[3], p, sector;
 	static const int sector_data[][3]=
 	{{0,2,1}, {1,2,0}, {1,0,2}, {2,0,1}, {2,1,0}, {0,1,2}};
@@ -125,21 +124,18 @@ CvScalar hsv2rgb( float c_h )
 	return cvScalar(rgb[2], rgb[1], rgb[0],0);
 }
 
-int main( int argc, char** argv )
-{
+int maIn(int argc, char** argv) {
 	param1 = 100;
 	param2 = 2000;
 	CvCapture* capture = 0;
-	if( argc == 1 || (argc == 2 && strlen(argv[1]) == 1 && isdigit(argv[1][0]))){
-      capture = cvCaptureFromCAM( 0 );
-	  cvSetCaptureProperty(capture,CV_CAP_PROP_FRAME_WIDTH,320);
-	  cvSetCaptureProperty(capture,CV_CAP_PROP_FRAME_HEIGHT,240);
-	}
-	else if( argc == 2 )
+	if (argc == 1 || (argc == 2 && strlen(argv[1]) == 1 && isdigit(argv[1][0]))) {
+		capture = cvCaptureFromCAM(0);
+		cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH, 320);
+		cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT, 240);
+	} else if (argc == 2)
 		capture = cvCaptureFromAVI( argv[1] );
 
-	if( !capture )
-	{
+	if (!capture) {
 		fprintf(stderr,"Could not initialize capturing...\n");
 		return -1;
 	}
@@ -164,23 +160,16 @@ int main( int argc, char** argv )
 	cvSetIdentity(kalman->process_noise_cov, cvRealScalar(0.4));
 	cvSetIdentity(kalman->measurement_noise_cov, cvRealScalar(3));
 	
-
-
-	for(;;)
-	{
+	for(;;) {
 		int i, bin_w, c;
-
 		frame = cvQueryFrame( capture ); //DO NOT RELEASE THIS IMAGE
-		
-		if( !frame )
+		if (!frame)
 			break;
 
-		if( !image )
-		{
+		if (!image) {
 			/* allocate all the buffers */
 			image = cvCreateImage( cvGetSize(frame), 8, 3 );
-			
-			
+
 			image->origin = frame->origin;
 			hsv = cvCreateImage( cvGetSize(frame), 8, 3 );
 			c_h = cvCreateImage( cvGetSize(frame), 8, 1 );
@@ -188,7 +177,6 @@ int main( int argc, char** argv )
 			c_v = cvCreateImage( cvGetSize(frame), 8, 1 );
 			
 			backproject = cvCreateImage( cvGetSize(frame), IPL_DEPTH_8U, 1 );
-				
 
 			hist = cvCreateHist( 1, &hdims, CV_HIST_ARRAY, &hranges, 1 );
 			histimg = cvCreateImage( cvSize(320,200), 8, 3 );
@@ -197,20 +185,18 @@ int main( int argc, char** argv )
 		//cvSmooth(frame, frame, CV_BLUR, 15, 15, 0, 0);
 		cvCvtColor( frame, hsv, CV_BGR2Lab );
 
-		if( track_object )
-		{
+		if (track_object) {
 			int _vmin = vmin, _vmax = vmax;
 			cvSplit( hsv, NULL, c_h,c_s , 0 );
 			
             IplImage* planes[] = { c_h, c_s};
-			if( track_object < 0 )
-			{
+			if (track_object < 0) {
 				float max_val = 0.f;				
 				cvSetImageROI( c_h, selection );
 				cvSetImageROI( c_s, selection );
 			    cvSetImageROI( hsv, selection );
 				cvAvgSdv( hsv, &mean, &stdv, NULL );
-				int h_bins = 15, s_bins = 15;
+				int h_bins = 15, s_bins = 15; 
 				{
 					int hist_size[] = { h_bins, s_bins };
 					float h_ranges[] = { 0, 180 };
@@ -221,7 +207,6 @@ int main( int argc, char** argv )
 				
                 cvCalcHist( planes, hist, 0, 0 ); // Compute histogram
 				
-
 				cvGetMinMaxHistValue( hist, 0, &max_val, 0, 0 );
 				cvConvertScale( hist->bins, hist->bins, max_val ? 255. / max_val : 0., 0 );
 				cvResetImageROI( c_h );
@@ -250,7 +235,6 @@ int main( int argc, char** argv )
 			}
             //calcule image backproject using histogram
 			cvCalcBackProject( planes, backproject, hist );
-			
            
 			IplConvKernel *se21 = cvCreateStructuringElementEx((10*2)+1, (10*2)+1, 10, 10, CV_SHAPE_RECT, NULL);
 			IplConvKernel *se11 = cvCreateStructuringElementEx((3*2)+1, (3*2)+1, 3,  3,  CV_SHAPE_RECT, NULL);			
