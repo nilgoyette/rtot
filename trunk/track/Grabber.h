@@ -1,0 +1,8 @@
+
+
+class Grabber {
+
+	public:
+		Grabber();
+
+};
