@@ -124,7 +124,7 @@ CvScalar hsv2rgb( float c_h ) {
 	return cvScalar(rgb[2], rgb[1], rgb[0],0);
 }
 
-int maIn(int argc, char** argv) {
+int main(int argc, char** argv) {
 	param1 = 100;
 	param2 = 2000;
 	CvCapture* capture = 0;

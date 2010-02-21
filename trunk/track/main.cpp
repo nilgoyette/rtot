@@ -9,7 +9,7 @@ void QuiFaitUnCOUT() {
 	cout << "OMG WTF Ça FONCTIONE";
 }
 
-int main() {
+int maIn() {
 	
 	boost::thread t(QuiFaitUnCOUT);
 	
