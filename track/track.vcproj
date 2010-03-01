@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="track"
 	ProjectGUID="{2504C6A2-FCB6-4130-BF02-AE8086990789}"
 	RootNamespace="track"
@@ -183,6 +183,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\Grabber.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\main.cpp"
 				>
 			</File>
@@ -196,6 +200,10 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath=".\dataStructures.h"
+				>
+			</File>
 			<File
 				RelativePath=".\Grabber.h"
 				>
