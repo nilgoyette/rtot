@@ -5,21 +5,18 @@
 #include "cv.h"
 #include "cxcore.h"
 #include "highgui.h"
-
+#include "TripleBuffering.h"
 #include "dataStructures.h"
 
 class Grabber
 {
 private:
 	int camId_;
-	int width_;
-	int height_;
-
-	boost::mutex mut;
-
 	CvCapture* capture;
-	
 	IplImage *frame;
+    bool initialized;
+	TripleBuffering& sink;
+
 	IplImage *image;
 
 	imageData_t imgPointers;
@@ -33,12 +30,12 @@ private:
 	int hdims;
 
 public:
-	Grabber(int camId, int width, int hieght);
+	Grabber(int,CvSize,TripleBuffering&);
 	~Grabber(void);
 
 	void grabber(void);
-
-	void threadStart(void);
+    void operator()();
+	
 
 };
 
