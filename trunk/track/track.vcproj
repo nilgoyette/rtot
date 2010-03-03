@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="track"
 	ProjectGUID="{2504C6A2-FCB6-4130-BF02-AE8086990789}"
 	RootNamespace="track"
@@ -194,6 +194,10 @@
 				RelativePath=".\track.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\TripleBuffering.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -208,12 +212,16 @@
 				RelativePath=".\Grabber.h"
 				>
 			</File>
-		</Filter>
-		<Filter
-			Name="Resource Files"
-			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
-			>
+			<File
+				RelativePath=".\TripleBuffering.h"
+				>
+			</File>
+			<Filter
+				Name="Resource Files"
+				Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
+				UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
+				>
+			</Filter>
 		</Filter>
 		<File
 			RelativePath=".\ReadMe.txt"

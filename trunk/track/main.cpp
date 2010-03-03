@@ -1,29 +1,17 @@
-
-#include <boost/thread.hpp>
 #include <iostream>
+#include <boost/thread.hpp>
+#include "TripleBuffering.h"
 #include "Grabber.h"
 
 #ifndef _EiC
 #include "cv.h"
-//#include "highgui.h"
+#include "highgui.h"
 //#include <stdio.h>
 //#include <ctype.h>
 //#include "BlobResult.h"
 #endif
 
-
-
 using namespace std;
-
-boost::condition_variable cond;
-boost::mutex mut;
-bool ready;
-
-/*
-	
-*/
-
-
 /*	void grabber() {
 		unsigned int i = 0;
 		while (i < 10) {
@@ -47,7 +35,7 @@ bool ready;
 		}
 	}*/
 
-
+/*
 void traitement() {
 	unsigned int i = 0;
 	while (i < 10) {
@@ -63,20 +51,24 @@ void traitement() {
 		i++;
 	}
 }
+*/
 
 int main(int argc, char** argv) {
-	
-	Grabber g(0,320,240);
+	CvSize size;
+	size.width = 320;
+	size.height = 240;
+	TripleBuffering threadBuffer(size);
+	Grabber g(0,size,threadBuffer);
 
-	boost::thread tG( boost::bind( & Grabber::grabber, &g) );
-	boost::thread tT(traitement);
-
-	tG.join();
-	tT.join();
-	
-	cout << "End ... \n";
-	char c;
-	cin >> c;
+	boost::thread tG( g );
+	cvNamedWindow( "CamShiftDemo", 1 );
+	for(;;) {
+		int c;
+		c = cvWaitKey(10);
+		if( (char) c == 27 )
+			break;
+		cvShowImage("CamShiftDemo",threadBuffer.read());
+	}
 
 	return 0;
 }
