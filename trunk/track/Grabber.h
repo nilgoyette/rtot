@@ -29,6 +29,8 @@ private:
 	float* hranges;
 	int hdims;
 
+	Grabber(const Grabber&);
+
 public:
 	Grabber(int,CvSize,TripleBuffering&);
 	~Grabber(void);

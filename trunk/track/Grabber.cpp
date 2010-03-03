@@ -1,4 +1,8 @@
+
+#include <iostream>
+
 #include "Grabber.h"
+
 Grabber::Grabber(int camId, CvSize size, TripleBuffering& buffer) 
 		: camId_(camId), capture(NULL), sink(buffer)
 {
@@ -67,12 +71,17 @@ for(;;){
 */
 }
 
-void Grabber::operator()(){
-  if (!initialized) return;
-  for (;;) {
-	  //DO NOT RELEASE THIS IMAGE  
-	  frame = cvQueryFrame(capture); 
+void Grabber::operator()() {
+	std::cout << "HAaijfbh\n\n";
+	if (!initialized) {
+		std::cout << "Grabber was not initialised\n";
+		return;
+	}
 
-      sink.write(frame);
-  }
+	for (;;) {
+		//DO NOT RELEASE THIS IMAGE  
+		frame = cvQueryFrame(capture); 
+
+		sink.write(frame);
+	}
 }

@@ -18,7 +18,7 @@ void TripleBuffering::write(IplImage *frame)
     cvCopyImage(frame,buffer1);
 	{
 		boost::lock_guard<boost::mutex> lock(mutswap);
-		std::swap(buffer1,buffer2);
+		std::swap(buffer1 ,buffer2);
 	}
 	ready=true;
 	cond.notify_one();
@@ -32,6 +32,8 @@ IplImage * TripleBuffering::read()
 	{
 		cond.wait(lock);
 	}
+	ready = false;
+
     {
 	  // prevent writer from swapping p2 with p1 
       boost::lock_guard<boost::mutex> lock(mutswap);
