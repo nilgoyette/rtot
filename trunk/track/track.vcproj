@@ -183,6 +183,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\ColorThreshold.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Grabber.cpp"
 				>
 			</File>
@@ -210,6 +214,10 @@
 			>
 			<File
 				RelativePath=".\Circle.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ColorThreshold.h"
 				>
 			</File>
 			<File

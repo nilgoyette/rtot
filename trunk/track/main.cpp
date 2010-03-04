@@ -7,6 +7,7 @@
 #include "DebugGrabber.hpp"
 #include "Timer.hpp"
 #include "TripleBuffering.h"
+#include "ColorThreshold.h"
 
 #ifndef _EiC
 	#include "cv.h"
@@ -23,12 +24,13 @@ int main(int argc, char** argv) {
 
 	boost::thread tG(&Grabber::operator (), &g);
 	cvNamedWindow("CamShiftDemo", 1);
+    ColorThreshold cth(resolution);
 	for(;;) {
 		int c = cvWaitKey(10);
 		if (c == 27) {
 			break;
 		}
-		cvShowImage("CamShiftDemo", threadBuffer.read());
+		cvShowImage("CamShiftDemo", cth.process( threadBuffer.read()));
 	}
 
 	return 0;

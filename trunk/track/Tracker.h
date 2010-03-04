@@ -1,4 +1,3 @@
-#pragma once
 #include "Circle.hpp"
 #include "BlobResult.h"
 
