@@ -6,9 +6,11 @@
 
 #include "cv.h"
 
-// Boost Mutix map to a CRITICAL_SECTION on Windows
+#include "Uncopiable.h"
 
-class TripleBuffering {
+// Boost Mutex map to a CRITICAL_SECTION on Windows
+
+class TripleBuffering : Uncopiable<> {
 	public:
 		TripleBuffering(const CvSize s) throw();
 		~TripleBuffering(void) throw();
