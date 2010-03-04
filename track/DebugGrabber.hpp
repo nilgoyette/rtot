@@ -1,32 +1,35 @@
-#pragma once
-#include "Grabber.h"
-#include "Timer.h"
+
+#ifndef __DEBUG_GRABBER_H__
+#define __DEBUG_GRABBER_H__
+
 #include <iostream>
 
-class DebugGrabber : public Grabber
-{
-    Timer t;
-    bool started;
-    int framecount;
-public:
+#include "Grabber.h"
+#include "Timer.hpp"
 
-    DebugGrabber(const int camId, const CvSize resolution, TripleBuffering& buffer)
-        : Grabber(camId, resolution, buffer) , started(false) , framecount(0)
-    {
-    }
+class DebugGrabber : public Grabber {
+	public:
+		DebugGrabber(const int camId, const CvSize resolution, TripleBuffering& buffer)
+			: Grabber(camId, resolution, buffer) , started(false) , framecount(0) {}
 
-    virtual void beforeGrab() throw() {
-        if(!started){
-            started = true;
-            t.start();
-        }
-        ++framecount;
-        if(framecount == 60){
-            double d = t.elapsed();
-            std::cout << 1 / ((d / 1000) /framecount ) << std::endl;
-			framecount = 0;
-            t.restart();
-        }
-    };
-    virtual void afterGrab() throw(){};
+		virtual void beforeGrab() throw() {
+			if (!started) {
+				started = true;
+				t.start();
+			}
+			
+			if (++framecount == 60) {
+				double d = t.elapsed();
+				std::cout << "FPS : " << 1 / ((d / 1000) / framecount ) << std::endl;
+				framecount = 0;
+				t.restart();
+			}
+		};
+
+	private:
+		Timer t;
+		bool started;
+		int framecount;
 };
+
+#endif

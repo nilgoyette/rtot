@@ -35,14 +35,7 @@ void Grabber::operator()() throw() {
         beforeGrab();
 		frame = cvQueryFrame(capture_); 
 		sink_.write(frame);
-        afterGrab();
 	}
 }
 
-void Grabber::beforeGrab() throw() {
-
-}
-
-void Grabber::afterGrab() throw() {
-
-}
+void Grabber::beforeGrab() throw() {}

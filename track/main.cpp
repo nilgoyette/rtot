@@ -3,9 +3,9 @@
 #include <windows.h>
 #include <boost/thread.hpp>
 
-#include "Grabber.h"
+//#include "Grabber.h"
 #include "DebugGrabber.hpp"
-#include "Timer.h"
+#include "Timer.hpp"
 #include "TripleBuffering.h"
 
 #ifndef _EiC
