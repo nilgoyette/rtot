@@ -1,44 +1,34 @@
-#if !defined(__GRABBER_H__)
+
+#ifndef __GRABBER_H__
 #define __GRABBER_H__
 
 #include <boost/thread.hpp>
+
 #include "cv.h"
-#include "cxcore.h"
 #include "highgui.h"
+
 #include "TripleBuffering.h"
-#include "dataStructures.h"
 
-class Grabber
-{
-private:
-	int camId_;
-	CvCapture* capture;
-	IplImage *frame;
-    bool initialized;
-	TripleBuffering& sink;
+// TODO Coder uncopyable, extender et enlever les constructeurs par copie privé
+// http://h-deb.clg.qc.ca/Sujets/Divers--cplusplus/Incopiable.html
 
-	IplImage *image;
+class Grabber {
+	public:
+		Grabber(const int, const CvSize, TripleBuffering&) throw();
+		~Grabber(void) throw();
 
-	imageData_t imgPointers;
+		void grabber(void) throw();
+		void operator()() throw();
 
-	IplImage *histimg;
+	private:
+		const int camId_;		//  
+		CvCapture* capture_;	// Image acquisition object
+		bool initialized_;		// 
+		TripleBuffering& sink_;	// Concurrent image queue
 
-	CvHistogram *hist;
+		IplImage *image_;		// 
 
-	float hranges_arr[2];
-	float* hranges;
-	int hdims;
-
-	Grabber(const Grabber&);
-
-public:
-	Grabber(int,CvSize,TripleBuffering&);
-	~Grabber(void);
-
-	void grabber(void);
-    void operator()();
-	
-
+		Grabber(const Grabber&);
 };
 
 #endif

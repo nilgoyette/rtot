@@ -191,6 +191,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Timer.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\track.cpp"
 				>
 			</File>
@@ -210,6 +214,10 @@
 			</File>
 			<File
 				RelativePath=".\Grabber.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Timer.h"
 				>
 			</File>
 			<File

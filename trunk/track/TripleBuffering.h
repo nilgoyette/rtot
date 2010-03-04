@@ -1,23 +1,31 @@
-#pragma once
+
+#ifndef __TRIPLE_BUFFERING_H__
+#define __TRIPLE_BUFFERING_H__
 
 #include <boost/thread.hpp>
+
 #include "cv.h"
 
-class TripleBuffering
-{
-	TripleBuffering(const TripleBuffering&);
-	public:
-		//will map to a CRITICAL_SECTION on Windows
-		boost::mutex mutswap;
-		boost::mutex mutcond;
-		bool ready;
-		boost::condition_variable cond;
-		IplImage *buffer1;
-		IplImage *buffer2;
-		IplImage *buffer3;
+// Boost Mutix map to a CRITICAL_SECTION on Windows
 
-		TripleBuffering(CvSize s);
-		~TripleBuffering(void);
-		void write(IplImage *frame);
-		IplImage * read();
+class TripleBuffering {
+	public:
+		TripleBuffering(const CvSize s) throw();
+		~TripleBuffering(void) throw();
+		void write(const IplImage* const frame) throw();
+		IplImage* read() throw();
+
+	private:
+		boost::condition_variable cond_;
+		boost::mutex mutswap_;
+		boost::mutex mutcond_;
+		bool ready_;
+
+		IplImage *buffer1_;
+		IplImage *buffer2_;
+		IplImage *buffer3_;
+
+		TripleBuffering(const TripleBuffering&);
 };
+
+#endif
