@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="track"
 	ProjectGUID="{2504C6A2-FCB6-4130-BF02-AE8086990789}"
 	RootNamespace="track"
@@ -195,6 +195,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Tracker.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\TripleBuffering.cpp"
 				>
 			</File>
@@ -205,6 +209,10 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\Circle.hpp"
+				>
+			</File>
+			<File
 				RelativePath=".\DebugGrabber.hpp"
 				>
 			</File>
@@ -214,6 +222,10 @@
 			</File>
 			<File
 				RelativePath=".\Timer.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Tracker.h"
 				>
 			</File>
 			<File
