@@ -13,22 +13,23 @@
 // http://h-deb.clg.qc.ca/Sujets/Divers--cplusplus/Incopiable.html
 
 class Grabber {
-	public:
-		Grabber(const int, const CvSize, TripleBuffering&) throw();
-		~Grabber(void) throw();
+    public:
+        Grabber(const int, const CvSize, TripleBuffering&) throw();
+        ~Grabber(void) throw();
 
-		void grabber(void) throw();
-		void operator()() throw();
+        void grabber(void) throw();
+        void operator()() throw();
+        virtual void beforeGrab() throw();
+        virtual void afterGrab() throw();
+    private:
+        const int camId_;       //  
+        CvCapture* capture_;    // Image acquisition object
+        bool initialized_;      // 
+        TripleBuffering& sink_; // Concurrent image queue
 
-	private:
-		const int camId_;		//  
-		CvCapture* capture_;	// Image acquisition object
-		bool initialized_;		// 
-		TripleBuffering& sink_;	// Concurrent image queue
+        IplImage *image_;       // 
 
-		IplImage *image_;		// 
-
-		Grabber(const Grabber&);
+        Grabber(const Grabber&);
 };
 
 #endif
