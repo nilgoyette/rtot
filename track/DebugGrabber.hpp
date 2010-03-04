@@ -15,10 +15,6 @@ public:
     {
     }
 
-    ~DebugGrabber(void)
-    {
-    }
-
     virtual void beforeGrab() throw() {
         if(!started){
             started = true;
@@ -27,7 +23,8 @@ public:
         ++framecount;
         if(framecount == 60){
             double d = t.elapsed();
-            std::cout << 1/((d / 1000) /framecount ) << std::endl;
+            std::cout << 1 / ((d / 1000) /framecount ) << std::endl;
+			framecount = 0;
             t.restart();
         }
     };
