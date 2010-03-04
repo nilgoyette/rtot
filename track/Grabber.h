@@ -8,11 +8,9 @@
 #include "highgui.h"
 
 #include "TripleBuffering.h"
+#include "Uncopiable.h"
 
-// TODO Coder uncopyable, extender et enlever les constructeurs par copie privé
-// http://h-deb.clg.qc.ca/Sujets/Divers--cplusplus/Incopiable.html
-
-class Grabber {
+class Grabber : Uncopiable<> {
     public:
         Grabber(const int, const CvSize, TripleBuffering&) throw();
         ~Grabber(void) throw();

@@ -220,6 +220,10 @@
 				RelativePath=".\TripleBuffering.h"
 				>
 			</File>
+			<File
+				RelativePath=".\Uncopiable.h"
+				>
+			</File>
 			<Filter
 				Name="Resource Files"
 				Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
