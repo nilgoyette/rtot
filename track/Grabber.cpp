@@ -32,7 +32,17 @@ void Grabber::operator()() throw() {
 	// DO NOT RELEASE THIS IMAGE  
 	IplImage *frame;
 	for (;;) {
+        beforeGrab();
 		frame = cvQueryFrame(capture_); 
 		sink_.write(frame);
+        afterGrab();
 	}
+}
+
+void Grabber::beforeGrab() throw() {
+
+}
+
+void Grabber::afterGrab() throw() {
+
 }

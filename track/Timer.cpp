@@ -3,14 +3,14 @@
 
 Timer::Timer(void) throw() : running_(false) {
 	start_.QuadPart = 0;
-	QueryPerformanceFrequency(&frequency_))
+	QueryPerformanceFrequency(&frequency_);
 	SetThreadAffinityMask(GetCurrentThread(), 1);
 	frequency_.QuadPart /= 1000;
 }
 
 void Timer::start(void) throw() {
 	if (!running_) {
-		QueryPerformanceCounter(&start_)
+		QueryPerformanceCounter(&start_);
 		running_ = true;
 	} else {
 		reset();

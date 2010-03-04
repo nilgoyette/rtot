@@ -4,6 +4,7 @@
 #include <boost/thread.hpp>
 
 #include "Grabber.h"
+#include "DebugGrabber.hpp"
 #include "Timer.h"
 #include "TripleBuffering.h"
 
@@ -15,12 +16,11 @@
 using namespace std;
 
 int main(int argc, char** argv) {
-	CvSize resolution = cvSize(320, 240);
+	//CvSize resolution = cvSize(320, 240);
+    CvSize resolution = cvSize(160, 120);
 	TripleBuffering threadBuffer(resolution);
-	Grabber g(0, resolution, threadBuffer);
+	DebugGrabber g(0, resolution, threadBuffer);
 
-
-    Timer t;
 	boost::thread tG(&Grabber::operator (), &g);
 	cvNamedWindow("CamShiftDemo", 1);
 	for(;;) {
@@ -28,11 +28,7 @@ int main(int argc, char** argv) {
 		if (c == 27) {
 			break;
 		}
-        t.start();
 		cvShowImage("CamShiftDemo", threadBuffer.read());
-		double d = t.elapsed();
-		t.reset();
-		cout << d << endl;
 	}
 
 	return 0;
