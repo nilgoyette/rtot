@@ -20,7 +20,7 @@ class Grabber {
         void grabber(void) throw();
         void operator()() throw();
         virtual void beforeGrab() throw();
-        virtual void afterGrab() throw();
+
     private:
         const int camId_;       //  
         CvCapture* capture_;    // Image acquisition object
