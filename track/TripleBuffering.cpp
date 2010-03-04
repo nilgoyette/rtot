@@ -1,44 +1,45 @@
+
 #include "TripleBuffering.h"
 
-TripleBuffering::TripleBuffering(CvSize s) 
-: ready(false)
-{
-	this->buffer1 = cvCreateImage(s,8,3);
-    this->buffer2 = cvCreateImage(s,8,3);
-	this->buffer3 = cvCreateImage(s,8,3);
+using namespace std;
+
+TripleBuffering::TripleBuffering(const CvSize s) throw()
+		: ready_(false)  {
+	// TODO : Trouver l'enum pour 8 et 3
+	buffer1_ = cvCreateImage(s, 8, 3);
+    buffer2_ = cvCreateImage(s, 8, 3);
+	buffer3_ = cvCreateImage(s, 8, 3);
 }
 
-TripleBuffering::~TripleBuffering(void)
-{
-	
+TripleBuffering::~TripleBuffering(void) throw() {
+	cvReleaseImage(&buffer1_);
+	cvReleaseImage(&buffer2_);
+	cvReleaseImage(&buffer3_);
 }
 
-void TripleBuffering::write(IplImage *frame)
-{
-    cvCopyImage(frame,buffer1);
+void TripleBuffering::write(const IplImage* const frame) throw() {
+    cvCopyImage(frame, buffer1_);
 	{
-		boost::lock_guard<boost::mutex> lock(mutswap);
-		std::swap(buffer1 ,buffer2);
+		boost::lock_guard<boost::mutex> lock(mutswap_);
+		std::swap(buffer1_, buffer2_);
 	}
-	ready=true;
-	cond.notify_one();
+	ready_ = true;
+	cond_.notify_one();
 }
 
-IplImage * TripleBuffering::read()
-{
-	//wait for fresh data
-	boost::unique_lock<boost::mutex> lock(mutcond);
-	while(!ready)
-	{
-		cond.wait(lock);
+IplImage* TripleBuffering::read() throw() {
+	// Wait for fresh meat
+	boost::unique_lock<boost::mutex> lock(mutcond_);
+	while(!ready_) {
+		cond_.wait(lock);
 	}
-	ready = false;
+	ready_ = false;
 
-    {
-	  // prevent writer from swapping p2 with p1 
-      boost::lock_guard<boost::mutex> lock(mutswap);
-	  std::swap(buffer2,buffer3); // fresh data from p2 maintenant dans p3 
+	{
+		// Prevent writer from swapping p2 with p1 
+		boost::lock_guard<boost::mutex> lock(mutswap_);
+		swap(buffer2_, buffer3_); // fresh data from p2 maintenant dans p3 
 	}
-	// process the fresh data from p3
-	return buffer3;
+
+	return buffer3_;
 }

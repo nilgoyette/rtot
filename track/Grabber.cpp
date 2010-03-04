@@ -1,87 +1,38 @@
 
-#include <iostream>
-
 #include "Grabber.h"
 
-Grabber::Grabber(int camId, CvSize size, TripleBuffering& buffer) 
-		: camId_(camId), capture(NULL), sink(buffer)
-{
-	initialized = false;
-	capture = cvCaptureFromCAM(camId_);
-	cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH, size.width);
-	cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT, size.height);	
-	if (!capture) {
+Grabber::Grabber(const int camId, const CvSize resolution, TripleBuffering& buffer) throw()
+		: camId_(camId),
+		  capture_(NULL),
+		  sink_(buffer),
+		  initialized_(false) {
+	capture_ = cvCaptureFromCAM(camId_);
+	cvSetCaptureProperty(capture_, CV_CAP_PROP_FRAME_WIDTH, resolution.width);
+	cvSetCaptureProperty(capture_, CV_CAP_PROP_FRAME_HEIGHT, resolution.height);	
+
+	if (!capture_) {
 		printf("Could not initialize capturing...\n");
 		return;
 	}
-	initialized = true;
-
-	//frame = 0;
-	//image = 0;
-	//imgPointers.backproject = 0;
-	//imgPointers.c_h = 0;
-	//imgPointers.c_s = 0;
-	//imgPointers.c_v = 0;
-	//imgPointers.hsv = 0;
-	//imgPointers.locked = false;
-
-	//histimg = 0;
-	//hist = 0;
-	//hranges_arr[0] = 0;
-	//hranges_arr[1] = 180;
-	//hranges = hranges_arr;
-	//hdims = 16;
+	initialized_ = true;
 }
 
-Grabber::~Grabber(void)
-{
-	if (capture != NULL)
-         cvReleaseCapture( &capture );
-}
-
-void Grabber::grabber(void){
-/*
-for(;;){
-		frame = cvQueryFrame( capture ); //DO NOT RELEASE THIS IMAGE
-		if (!frame)
-			break;
-		
-		if (!image) {
-			boost::lock_guard<boost::mutex> lock(mut);
-			imgPointers.locked = true;
-			// allocate all the buffers 
-			image = cvCreateImage( cvGetSize(frame), 8, 3 );
-
-			image->origin = frame->origin;
-			imgPointers.hsv = cvCreateImage( cvGetSize(frame), 8, 3 );
-			imgPointers.c_h = cvCreateImage( cvGetSize(frame), 8, 1 );
-			imgPointers.c_s = cvCreateImage( cvGetSize(frame), 8, 1 );
-			imgPointers.c_v = cvCreateImage( cvGetSize(frame), 8, 1 );
-			
-			imgPointers.backproject = cvCreateImage( cvGetSize(frame), IPL_DEPTH_8U, 1 );
-			cvCvtColor( frame, imgPointers.hsv, CV_BGR2Lab );
-
-
-			// related to histogram
-			hist = cvCreateHist( 1, &hdims, CV_HIST_ARRAY, &hranges, 1 );
-			histimg = cvCreateImage( cvSize(320,200), 8, 3 );
-		}
-		
+Grabber::~Grabber(void) throw() {
+	if (capture_ != NULL) {
+		cvReleaseCapture(&capture_);
 	}
-*/
 }
 
-void Grabber::operator()() {
-	std::cout << "HAaijfbh\n\n";
-	if (!initialized) {
-		std::cout << "Grabber was not initialised\n";
+void Grabber::operator()() throw() {
+	if (!initialized_) {
+		printf("Grabber was not initialised\n");
 		return;
 	}
 
+	// DO NOT RELEASE THIS IMAGE  
+	IplImage *frame;
 	for (;;) {
-		//DO NOT RELEASE THIS IMAGE  
-		frame = cvQueryFrame(capture); 
-
-		sink.write(frame);
+		frame = cvQueryFrame(capture_); 
+		sink_.write(frame);
 	}
 }

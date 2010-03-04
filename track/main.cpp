@@ -1,34 +1,38 @@
+
 #include <iostream>
+#include <windows.h>
 #include <boost/thread.hpp>
-#include "TripleBuffering.h"
+
 #include "Grabber.h"
+#include "Timer.h"
+#include "TripleBuffering.h"
 
 #ifndef _EiC
-#include "cv.h"
-#include "highgui.h"
-//#include <stdio.h>
-//#include <ctype.h>
-//#include "BlobResult.h"
+	#include "cv.h"
+	#include "highgui.h"
 #endif
 
 using namespace std;
 
 int main(int argc, char** argv) {
-	CvSize size;
-	size.width = 320;
-	size.height = 240;
-	TripleBuffering threadBuffer(size);
-	Grabber g(0,size,threadBuffer);
+	CvSize resolution = cvSize(320, 240);
+	TripleBuffering threadBuffer(resolution);
+	Grabber g(0, resolution, threadBuffer);
 
-	boost::thread tG( &Grabber::operator (), &g );
+
+    Timer t;
+	boost::thread tG(&Grabber::operator (), &g);
 	cvNamedWindow("CamShiftDemo", 1);
 	for(;;) {
-		int c;
-		c = cvWaitKey(10);
-		if( (char) c == 27 )
+		int c = cvWaitKey(10);
+		if (c == 27) {
 			break;
-		IplImage *img = cvCreateImage(cvSize(800, 600), 8, 3);
+		}
+        t.start();
 		cvShowImage("CamShiftDemo", threadBuffer.read());
+		double d = t.elapsed();
+		t.reset();
+		cout << d << endl;
 	}
 
 	return 0;

@@ -1,6 +1,6 @@
-#if !defined(__DATASTRUCTURES_H__)
-#define __DATASTRUCTURES_H__
 
+#ifndef __DATASTRUCTURES_H__
+#define __DATASTRUCTURES_H__
 
 typedef struct imgData{
 	bool locked;
@@ -9,6 +9,6 @@ typedef struct imgData{
 	IplImage *c_s;
 	IplImage *c_v;
 	IplImage *backproject;
-}imageData_t;
+} imageData_t;
 
 #endif
