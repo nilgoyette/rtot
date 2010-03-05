@@ -14,7 +14,8 @@ class Grabber : Uncopiable<> {
     public:
         Grabber(const int, const CvSize, TripleBuffering&) throw();
         ~Grabber(void) throw();
-
+        
+        void exit();
         void grabber(void) throw();
         void operator()() throw();
         virtual void beforeGrab() throw();
@@ -28,6 +29,7 @@ class Grabber : Uncopiable<> {
         IplImage *image_;       // 
 
         Grabber(const Grabber&);
+        bool exit_;
 };
 
 #endif

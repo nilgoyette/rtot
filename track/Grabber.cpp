@@ -5,7 +5,8 @@ Grabber::Grabber(const int camId, const CvSize resolution, TripleBuffering& buff
 		: camId_(camId),
 		  capture_(NULL),
 		  sink_(buffer),
-		  initialized_(false) {
+		  initialized_(false),
+          exit_(true){
 	capture_ = cvCaptureFromCAM(camId_);
 	cvSetCaptureProperty(capture_, CV_CAP_PROP_FRAME_WIDTH, resolution.width);
 	cvSetCaptureProperty(capture_, CV_CAP_PROP_FRAME_HEIGHT, resolution.height);
@@ -23,6 +24,10 @@ Grabber::~Grabber(void) throw() {
 	}
 }
 
+void Grabber::exit(){
+    exit_ = false;
+}
+
 void Grabber::operator()() throw() {
 	if (!initialized_) {
 		printf("Grabber was not initialised\n");
@@ -31,7 +36,7 @@ void Grabber::operator()() throw() {
 
 	// DO NOT RELEASE THIS IMAGE  
 	IplImage *frame;
-	for (;;) {
+	while (exit_) {
         beforeGrab();
 		frame = cvQueryFrame(capture_); 
 		sink_.write(frame);

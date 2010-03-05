@@ -12,6 +12,8 @@ class ColorThreshold
     IplConvKernel *se11_;
     bool calcHist_;
 public:
+
+
     Histogram hist_;
     ColorThreshold(CvSize);
     ~ColorThreshold(void);
