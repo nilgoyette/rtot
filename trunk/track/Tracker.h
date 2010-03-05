@@ -7,18 +7,18 @@
 #include "Uncopiable.h"
 
 class Tracker : Uncopiable<> {
-	public:
-		Tracker(void);
-		~Tracker(void);
+    public:
+        Tracker(void);
+        //~Tracker(void);
 
-		const Circle& process(IplImage* backproject) throw();
-
-	private:
-		CvKalman* kalman;
-		Circle current;
-		CvMat* state;
-		CBlobResult blobs;
-		CBlob *currentBlob;
+        const Circle& process(IplImage* backproject) throw();
+        bool backproject_mode_;
+    private:
+        CvKalman* kalman;
+        Circle current;
+        CvMat* state;
+        CBlobResult blobs;
+        CBlob *currentBlob;
 };
 
 #endif

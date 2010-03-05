@@ -20,15 +20,20 @@ void ColorThreshold::setHist(){
 }
 
 IplImage* ColorThreshold::process(IplImage* frame){
-    //if(hist_.track_object_){
-    //    //calcule image backproject using histogram
-    //    cvCalcBackProject( hist_.planes_, backproject_, hist_.process(frame) );
+    if( hist_.track_object_ ){
+        //calcule image backproject using histogram
+        if( !hist_.initialized_ ){
+            hist_.createHistogram(frame);
+        }
 
-    //    cvMorphologyEx(backproject_, backproject_, NULL,se21_,CV_MOP_CLOSE); // See completed example for cvClose definition	
-    //    cvMorphologyEx(backproject_, backproject_, NULL, se11_,CV_MOP_OPEN );  // See completed example for cvOpen  definition
-    //    cvSmooth(backproject_, backproject_, CV_GAUSSIAN, 5,5, 0, 0);
-    //    cvThreshold(backproject_,backproject_,threshold_,255,CV_THRESH_BINARY | CV_THRESH_OTSU );
-    //    return backproject;
-    //}
+        cvCalcBackProject( hist_.planes_, backproject_, hist_.process(frame) );
+
+        cvMorphologyEx(backproject_, backproject_, NULL,se21_,CV_MOP_CLOSE); // See completed example for cvClose definition	
+        cvMorphologyEx(backproject_, backproject_, NULL, se11_,CV_MOP_OPEN );  // See completed example for cvOpen  definition
+        cvSmooth(backproject_, backproject_, CV_GAUSSIAN, 5,5, 0, 0);
+        cvThreshold(backproject_,backproject_,threshold_,255,CV_THRESH_BINARY | CV_THRESH_OTSU );
+        return backproject_;
+    }
+    frame = hist_.aplyRoiToImage(frame);
     return frame;
 }
