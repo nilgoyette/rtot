@@ -191,6 +191,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Histogram.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\main.cpp"
 				>
 			</File>
@@ -226,6 +230,10 @@
 			</File>
 			<File
 				RelativePath=".\Grabber.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Histogram.h"
 				>
 			</File>
 			<File

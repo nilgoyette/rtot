@@ -15,6 +15,11 @@
 #endif
 
 using namespace std;
+ColorThreshold *cth;
+
+void on_mouse_event( int event, int x, int y, int flags, void* param ){
+    cth->hist_.on_mouse(event, x, y, flags,param);
+}
 
 int main(int argc, char** argv) {
 	//CvSize resolution = cvSize(320, 240);
@@ -24,13 +29,15 @@ int main(int argc, char** argv) {
 
 	boost::thread tG(&Grabber::operator (), &g);
 	cvNamedWindow("CamShiftDemo", 1);
-    ColorThreshold cth(resolution);
+    cth = new ColorThreshold(resolution);
+    cvSetMouseCallback( "CamShiftDemo", on_mouse_event, 0);
+
 	for(;;) {
 		int c = cvWaitKey(10);
 		if (c == 27) {
 			break;
 		}
-		cvShowImage("CamShiftDemo", cth.process( threadBuffer.read()));
+		cvShowImage("CamShiftDemo", cth->process( threadBuffer.read()));
 	}
 
 	return 0;
