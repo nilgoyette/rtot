@@ -160,14 +160,7 @@ int maIn(int argc, char** argv) {
 	cvSetIdentity(kalman->process_noise_cov, cvRealScalar(0.4));
 	cvSetIdentity(kalman->measurement_noise_cov, cvRealScalar(3));
 	
-	for(;;) {
-		int i, bin_w, c;
-		frame = cvQueryFrame( capture ); //DO NOT RELEASE THIS IMAGE
-		if (!frame)
-			break;
-
-		if (!image) {
-			/* allocate all the buffers */
+frame = cvQueryFrame( capture ); //DO NOT RELEASE THIS IMAGE
 			image = cvCreateImage( cvGetSize(frame), 8, 3 );
 
 			image->origin = frame->origin;
@@ -180,6 +173,17 @@ int maIn(int argc, char** argv) {
 
 			hist = cvCreateHist( 1, &hdims, CV_HIST_ARRAY, &hranges, 1 );
 			histimg = cvCreateImage( cvSize(320,200), 8, 3 );
+
+
+	for(;;) {
+		int i, bin_w, c;
+		frame = cvQueryFrame( capture ); //DO NOT RELEASE THIS IMAGE
+		if (!frame)
+			break;
+
+		if (!image) {
+			/* allocate all the buffers */
+
 		}
 		
 		//cvSmooth(frame, frame, CV_BLUR, 15, 15, 0, 0);
@@ -291,9 +295,8 @@ int maIn(int argc, char** argv) {
 				}
 				
 			}
-
 		}
-       
+        
 		if( select_object && selection.width > 0 && selection.height > 0 )
 		{
 			cvSetImageROI( frame, selection );
