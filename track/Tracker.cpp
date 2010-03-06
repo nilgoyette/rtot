@@ -3,12 +3,17 @@
 
 Tracker::Tracker(void) {
     backproject_mode_ = false;
-    kalman = cvCreateKalman(2, 2, 0);
-    cvSetIdentity(kalman->measurement_matrix, cvRealScalar(1));     // identity
-    cvSetIdentity(kalman->error_cov_post, cvRealScalar(1));         // identity
-    cvSetIdentity(kalman->process_noise_cov, cvRealScalar(0.4));
-    cvSetIdentity(kalman->measurement_noise_cov, cvRealScalar(3));
+    kalman_ = cvCreateKalman(2, 2, 0);
+    cvSetIdentity(kalman_->measurement_matrix, cvRealScalar(1));     // identity
+    cvSetIdentity(kalman_->error_cov_post, cvRealScalar(1));         // identity
+    cvSetIdentity(kalman_->process_noise_cov, cvRealScalar(0.4));
+    cvSetIdentity(kalman_->measurement_noise_cov, cvRealScalar(3));
     state = cvCreateMat(2, 1, CV_32FC1);                            // (phi, delta_phi)
+}
+
+Tracker::~Tracker(void){
+    cvReleaseKalman(&kalman_);
+    cvReleaseMat(&state);
 }
 
 const Circle& Tracker::process(IplImage* backproject) throw() {
@@ -21,13 +26,13 @@ const Circle& Tracker::process(IplImage* backproject) throw() {
         currentBlob = blobs.GetBlob(0);
         current.init(currentBlob->GetBoundingBox());
 
-        const CvMat* prediction = cvKalmanPredict(kalman);
+        const CvMat* prediction = cvKalmanPredict(kalman_);
         current.center_ = cvPoint((int)cvmGet(prediction, 0, 0),
                                   (int)cvmGet(prediction, 1, 0));
 
         cvmSet(state, 0, 0, current.center_.x);
         cvmSet(state, 1, 0, current.center_.y);
-        cvKalmanCorrect(kalman, state);
+        cvKalmanCorrect(kalman_, state);
     }
     return current;
 }
