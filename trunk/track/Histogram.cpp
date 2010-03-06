@@ -21,6 +21,11 @@ Histogram::Histogram(CvSize size)
 
 Histogram::~Histogram(void)
 {
+    cvReleaseImage(&hsv_);
+    cvReleaseImage(&c_h_);
+    cvReleaseImage(&c_s_);
+    cvReleaseImage(&hist_img_);
+    cvReleaseHist(&hist_);
 }
 
 void Histogram::on_mouse( int event, int x, int y, int flags, void* param ){

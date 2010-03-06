@@ -9,12 +9,12 @@
 class Tracker : Uncopiable<> {
     public:
         Tracker(void);
-        //~Tracker(void);
+        ~Tracker(void);
 
         const Circle& process(IplImage* backproject) throw();
         bool backproject_mode_;
     private:
-        CvKalman* kalman;
+        CvKalman* kalman_;
         Circle current;
         CvMat* state;
         CBlobResult blobs;

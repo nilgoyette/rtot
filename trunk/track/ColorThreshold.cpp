@@ -11,6 +11,7 @@ ColorThreshold::ColorThreshold(CvSize size)
 
 ColorThreshold::~ColorThreshold(void)
 {
+    cvReleaseImage(&backproject_);
     cvReleaseStructuringElement(&se21_);
     cvReleaseStructuringElement(&se11_);
 }
