@@ -39,6 +39,8 @@ void Grabber::operator()() throw() {
 	while (exit_) {
         beforeGrab();
 		frame = cvQueryFrame(capture_); 
+		if(!frame)
+			return;
 		sink_.write(frame);
 	}
 }

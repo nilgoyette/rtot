@@ -160,7 +160,7 @@ int maIn(int argc, char** argv) {
 	cvSetIdentity(kalman->process_noise_cov, cvRealScalar(0.4));
 	cvSetIdentity(kalman->measurement_noise_cov, cvRealScalar(3));
 	
-frame = cvQueryFrame( capture ); //DO NOT RELEASE THIS IMAGE
+            frame = cvQueryFrame( capture ); //DO NOT RELEASE THIS IMAGE
 			image = cvCreateImage( cvGetSize(frame), 8, 3 );
 
 			image->origin = frame->origin;
@@ -276,7 +276,7 @@ frame = cvQueryFrame( capture ); //DO NOT RELEASE THIS IMAGE
 					//y = temporal_filter2(y,0.30);   
 	
 					
-
+                    /*
 					const CvMat* prediction = cvKalmanPredict(kalman);
 					center = cvPoint((int)cvmGet(prediction, 0, 0),
 						(int)cvmGet(prediction, 1, 0)
@@ -285,14 +285,18 @@ frame = cvQueryFrame( capture ); //DO NOT RELEASE THIS IMAGE
 					cvmSet(state, 0, 0, x);
 					cvmSet(state, 1, 0, y);
 					cvKalmanCorrect(kalman, state);
-
-                    //center = cvPoint(x,y);
+                    */
+                    center = cvPoint(x,y);
 					radius = temporal_filter((max/2),0.75);
 		     		//cvCircle(frame,cvPoint(x,y),radius,CV_RGB(255,0,0),3);
 					//cvCircle(frame,cvPoint(x,y), 3,CV_RGB(255,0,0), -1, CV_AA, 0);
-					cvCircle(frame,center,radius,CV_RGB(255,0,0),3);
-					cvCircle(frame,center, 3,CV_RGB(255,0,0), -1, CV_AA, 0);
+					cvCircle(frame,center,radius,CV_RGB(0,0,255),3);
+					cvCircle(frame,center, 3,CV_RGB(0,0,255), -1, CV_AA, 0);
+					CvFont myFont;
+					cvInitFont(&myFont,CV_FONT_HERSHEY_PLAIN ,2.0f,1.0f);
+					cvPutText( frame, "30 fps", cvPoint(50,30), &myFont , cvScalar(128) );
 				}
+				
 				
 			}
 		}

@@ -6,20 +6,27 @@
 
 class ColorThreshold
 {
-    IplImage* backproject_;
-    int threshold_;
-    IplConvKernel *se21_;
-    IplConvKernel *se11_;
-    bool calcHist_;
 public:
-
-
-    Histogram hist_;
+    void on_mouse( int event, int x, int y, int flags, void* param );
+	void turnOffTracking();
+	bool track_object_;    
+	bool calcule_hist_;
     ColorThreshold(CvSize);
     ~ColorThreshold(void);
-
-    void setHist();
     IplImage* process(IplImage*);
+private:
+	IplImage* backproject_;
+	int threshold_;
+	IplConvKernel *se21_;
+	IplConvKernel *se11_;
+	bool calcHist_;
+	CvRect selection_;
+	CvPoint origin_;
+	CvSize size_;
+	bool initialized_;
+	bool select_object_;
+	Histogram hist_;
+
 };
 
 #endif
