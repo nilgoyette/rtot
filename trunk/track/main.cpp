@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <windows.h>
 #include <boost/thread.hpp>
@@ -20,7 +19,7 @@ ColorThreshold *cth;
 bool show_hist = 1;
 
 void on_mouse_event( int event, int x, int y, int flags, void* param ){
-    cth->hist_.on_mouse(event, x, y, flags,param);
+    cth->on_mouse(event, x, y, flags,param);
 }
 
 bool checkKeys(Tracker &t, ColorThreshold* ct){
@@ -35,7 +34,7 @@ bool checkKeys(Tracker &t, ColorThreshold* ct){
         t.backproject_mode_ ^= 1;
         break;
     case 'c':
-        ct->hist_.turnOffTracking();
+        ct->turnOffTracking();
         break;
     default:
     ;
@@ -59,9 +58,10 @@ int main(int argc, char** argv) {
 
     boost::thread tG(&Grabber::operator (), &g);
     cvNamedWindow("CamShiftDemo", 1);
+	cvNamedWindow("backProject", 1);
     cth = new ColorThreshold(resolution);
     cvSetMouseCallback( "CamShiftDemo", on_mouse_event, 0);
-    Tracker track;
+    Tracker track(resolution);
 
     printMenu();
     IplImage* cthFrame;
@@ -71,15 +71,31 @@ int main(int argc, char** argv) {
         // this section will probably change in the future.
         original = threadBuffer.read();
         cthFrame = cth->process( original );
-        if( track.backproject_mode_ && cth->hist_.track_object_ ){
+
+        if( track.backproject_mode_ && cth->track_object_ ){
             Circle retCircle = track.process(cthFrame);
-            if(!retCircle.empty_){
+            if(int(retCircle.radius_) > 0 && retCircle.radius_ <  32768){
                 cvCircle(original,retCircle.center_,retCircle.radius_,CV_RGB(255,0,0),3);
                 cvCircle(original,retCircle.center_, 3,CV_RGB(255,0,0), -1, CV_AA, 0);
             }
+			int roisize  = track.current.radius_ * 2.5 ;
+			int x = std::max(0,track.current.center_.x - roisize);
+			int y = std::max(0,track.current.center_.y - roisize);
+			x = std::min(cthFrame->width-1,x);
+			y = std::min(cthFrame->height-1,y);
+			if(x != 0 && y !=0 && roisize > 0){
+				cvSetImageROI( cthFrame, cvRect(x,y,roisize*2,roisize*2) );
+				cvXorS( cthFrame, cvScalarAll(255), cthFrame, 0 );
+			}
+			
+            cvResetImageROI(cthFrame);
+			cvShowImage("backProject", cthFrame);
         }
 
         cvShowImage("CamShiftDemo", original);
+		
+
+		
         loop = checkKeys(track, cth);
     }
     // this guarenties that the thread exits without errors
