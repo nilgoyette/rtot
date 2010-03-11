@@ -18,7 +18,6 @@ class Tracker : Uncopiable<> {
 		Circle current;
     private:
         CvKalman* kalman;
-        Circle current;
         CvMat* state;
         CBlobResult blobs;
         CBlob *currentBlob;
@@ -28,8 +27,6 @@ class Tracker : Uncopiable<> {
 		CvMat* state_;
 		bool bMeasurement_; 
         CvSize size_;
-        
-		CBlobResult blobs;
 		bool gotBlob;
 
 		void updatePrediction(Circle &c);

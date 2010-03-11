@@ -1,10 +1,9 @@
 
 #include "Tracker.h"
 #include <iostream>
+
 Tracker::Tracker(CvSize size) : size_(size){
 	mask_ = cvCreateImage(size_,8,1);
-
-Tracker::Tracker(void) {
 	//essayer CalcOpticalFlowPyrLK pourais etre cool aussi
 	int dynam_params = 4;
     int measure_params = 2; 
@@ -57,10 +56,6 @@ Tracker::~Tracker(void){
 	cvReleaseImage(&mask_);
 }
 
-
-
-
-
 const Circle& Tracker::process(IplImage* backproject) throw() {
     blobs = CBlobResult(backproject, NULL, 0);
     blobs.Filter(blobs, B_EXCLUDE, CBlobGetArea(), B_GREATER, 5000);
@@ -69,15 +64,10 @@ const Circle& Tracker::process(IplImage* backproject) throw() {
 		return current;
 	if ( findBlob(backproject,NULL) )
 		return current;
-
-    // Display filtered blobs
-    current.empty_ = true;
-    if (blobs.GetNumBlobs() > 0) {
-        currentBlob = blobs.GetBlob(0);
-        current.init(currentBlob->GetBoundingBox());
 	getPrediction(current);
     return current;
 }
+
 void Tracker::setMask(){
 	int roisize  = int(current.radius_ * 2.5) ;
 	int x = std::max(0,current.center_.x - roisize);
@@ -104,20 +94,13 @@ bool Tracker::findBlob(IplImage* image,IplImage* mask){
 	return false;
 }
 
-        const CvMat* prediction = cvKalmanPredict(kalman);
-        current.center_ = cvPoint((int)cvmGet(prediction, 0, 0),
-                                  (int)cvmGet(prediction, 1, 0));
+      
 void Tracker::updatePrediction(Circle &c){
 	state_->data.fl[0] = (float)(c.center_.x);	//center x 
 	state_->data.fl[1] = (float)(c.center_.y);	//center y 
 	bMeasurement_ = true;  
 }
 
-        cvmSet(state, 0, 0, current.center_.x);
-        cvmSet(state, 1, 0, current.center_.y);
-        cvKalmanCorrect(kalman, state);
-    }
-    return current;
 void Tracker::getPrediction(Circle &c) {
 	const CvMat* prediction = cvKalmanPredict( kalman_, 0 ); 
 	c.center_.x = (int)prediction->data.fl[0]; 
