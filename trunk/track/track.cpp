@@ -273,9 +273,7 @@ int maIn(int argc, char** argv) {
 					int x = boundingBox.x + (width/2);
 					int y = boundingBox.y + (height/2);
 					//x = temporal_filter1(x,0.30);
-					//y = temporal_filter2(y,0.30);   
-	
-					
+					//y = temporal_filter2(y,0.30);   			
                     /*
 					const CvMat* prediction = cvKalmanPredict(kalman);
 					center = cvPoint((int)cvmGet(prediction, 0, 0),
