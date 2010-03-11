@@ -14,6 +14,7 @@ public:
     ColorThreshold(CvSize);
     ~ColorThreshold(void);
     IplImage* process(IplImage*);
+	int th;
 private:
 	IplImage* backproject_;
 	int threshold_;

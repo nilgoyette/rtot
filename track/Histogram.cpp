@@ -43,7 +43,7 @@ void Histogram::createHistogram(IplImage* frame,CvRect selection){
     
 
     cvCalcHist( planes_, hist_, 0, 0 ); // Compute histogram
-
+    cvNormalizeHist(hist_, 255);
     cvGetMinMaxHistValue( hist_, 0, &max_val, 0, 0 );
     cvConvertScale( hist_->bins, hist_->bins, max_val ? 255. / max_val : 0., 0 );
     cvResetImageROI( c_h_ );
@@ -64,6 +64,7 @@ void Histogram::createHistogram(IplImage* frame,CvRect selection){
                 CV_FILLED );
         }
     }
+	
     cvNamedWindow( "H-S Histogram", CV_WINDOW_AUTOSIZE) ;
     cvShowImage( "H-S Histogram", hist_img_ );
 }

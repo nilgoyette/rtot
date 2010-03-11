@@ -1,5 +1,6 @@
 
 #include "Grabber.h"
+#include <iostream>
 
 Grabber::Grabber(const int camId, const CvSize resolution, TripleBuffering& buffer) throw()
 		: camId_(camId),
@@ -16,6 +17,9 @@ Grabber::Grabber(const int camId, const CvSize resolution, TripleBuffering& buff
 		return;
 	}
 	initialized_ = true;
+
+	
+
 }
 
 Grabber::~Grabber(void) throw() {

@@ -52,13 +52,13 @@ void printMenu(){
 
 int main(int argc, char** argv) {
     //CvSize resolution = cvSize(320, 240);
-    CvSize resolution = cvSize(160, 120);
+    CvSize resolution = cvSize(320, 240);
     TripleBuffering threadBuffer(resolution);
     DebugGrabber g(0, resolution, threadBuffer);
 
     boost::thread tG(&Grabber::operator (), &g);
     cvNamedWindow("CamShiftDemo", 1);
-	cvNamedWindow("backProject", 1);
+	//cvNamedWindow("backProject", 1);
     cth = new ColorThreshold(resolution);
     cvSetMouseCallback( "CamShiftDemo", on_mouse_event, 0);
     Tracker track(resolution);
@@ -67,6 +67,7 @@ int main(int argc, char** argv) {
     IplImage* cthFrame;
     IplImage* original;
     bool loop = true;
+	
     while(loop) {
         // this section will probably change in the future.
         original = threadBuffer.read();
@@ -78,18 +79,7 @@ int main(int argc, char** argv) {
                 cvCircle(original,retCircle.center_,retCircle.radius_,CV_RGB(255,0,0),3);
                 cvCircle(original,retCircle.center_, 3,CV_RGB(255,0,0), -1, CV_AA, 0);
             }
-			int roisize  = track.current.radius_ * 2.5 ;
-			int x = std::max(0,track.current.center_.x - roisize);
-			int y = std::max(0,track.current.center_.y - roisize);
-			x = std::min(cthFrame->width-1,x);
-			y = std::min(cthFrame->height-1,y);
-			if(x != 0 && y !=0 && roisize > 0){
-				cvSetImageROI( cthFrame, cvRect(x,y,roisize*2,roisize*2) );
-				cvXorS( cthFrame, cvScalarAll(255), cthFrame, 0 );
-			}
-			
-            cvResetImageROI(cthFrame);
-			cvShowImage("backProject", cthFrame);
+			//cvShowImage("backProject", cthFrame);
         }
 
         cvShowImage("CamShiftDemo", original);
