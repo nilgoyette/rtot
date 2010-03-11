@@ -60,8 +60,8 @@ const Circle& Tracker::process(IplImage* backproject) throw() {
     blobs = CBlobResult(backproject, NULL, 0);
     blobs.Filter(blobs, B_EXCLUDE, CBlobGetArea(), B_GREATER, 5000);
 	setMask();
-    if ( findBlob(backproject,mask_) )
-		return current;
+   // if ( findBlob(backproject,mask_) )
+   //	return current;
 	if ( findBlob(backproject,NULL) )
 		return current;
 	getPrediction(current);
@@ -83,7 +83,7 @@ void Tracker::setMask(){
 }
 bool Tracker::findBlob(IplImage* image,IplImage* mask){
 	blobs = CBlobResult(image,mask, 0);
-	blobs.Filter(blobs, B_EXCLUDE, CBlobGetArea(), B_GREATER, 2000);
+	blobs.Filter(blobs, B_EXCLUDE, CBlobGetArea(), B_GREATER, 5000);
 	if (blobs.GetNumBlobs() > 0) {
 		CBlob *currentBlob = blobs.GetBlob(0);
 		current.init(currentBlob->GetBoundingBox());
