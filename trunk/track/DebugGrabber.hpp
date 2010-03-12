@@ -18,9 +18,9 @@ class DebugGrabber : public Grabber {
 				t.start();
 			}
 			
-			if (++framecount == 10) {
+			if (++framecount == 60) {
 				double d = t.elapsed();
-				std::cout << "FPS : " << 1 / ((d / 1000) / framecount ) << std::endl;
+				std::cout << "Grab: " << 1 / ((d / 1000) / framecount ) << "fps" << std::endl;
 				framecount = 0;
 				t.restart();
 			}

@@ -53,21 +53,21 @@ int temporal_filter(int radius,double alpha){
 	static int radius1 = 0;
 	static int radius2 = 0;
 	radius1 = radius2;
-	radius2 = radius1*alpha + (1-alpha)*radius;
+	radius2 = int(radius1*alpha + (1-alpha)*radius);
 	return radius2;
 }
 int temporal_filter1(int radius,double alpha){
 	static int radius1 = 0;
 	static int radius2 = 0;
 	radius1 = radius2;
-	radius2 = radius1*alpha + (1-alpha)*radius;
+	radius2 = int(radius1*alpha + (1-alpha)*radius);
 	return radius2;
 }
 int temporal_filter2(int radius,double alpha){
 	static int radius1 = 0;
 	static int radius2 = 0;
 	radius1 = radius2;
-	radius2 = radius1*alpha + (1-alpha)*radius;
+	radius2 = int(radius1*alpha + (1-alpha)*radius);
 	return radius2;
 }
 
@@ -176,7 +176,7 @@ int maIn(int argc, char** argv) {
 
 
 	for(;;) {
-		int i, bin_w, c;
+		int c;
 		frame = cvQueryFrame( capture ); //DO NOT RELEASE THIS IMAGE
 		if (!frame)
 			break;

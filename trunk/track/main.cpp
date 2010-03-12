@@ -51,14 +51,14 @@ void printMenu(){
 }
 
 int main(int argc, char** argv) {
-    //CvSize resolution = cvSize(320, 240);
+    //CvSize resolution = cvSize(176, 144);
     CvSize resolution = cvSize(320, 240);
-    TripleBuffering threadBuffer(resolution);
+	TripleBuffering threadBuffer(resolution);
     DebugGrabber g(0, resolution, threadBuffer);
 
     boost::thread tG(&Grabber::operator (), &g);
     cvNamedWindow("CamShiftDemo", 1);
-	//cvNamedWindow("backProject", 1);
+	cvNamedWindow("backProject", 1);
     cth = new ColorThreshold(resolution);
     cvSetMouseCallback( "CamShiftDemo", on_mouse_event, 0);
     Tracker track(resolution);
@@ -67,19 +67,34 @@ int main(int argc, char** argv) {
     IplImage* cthFrame;
     IplImage* original;
     bool loop = true;
-	
+	Timer t;
+	t.start();
+    unsigned int framecount = 0;
     while(loop) {
+		if (++framecount == 60) {
+			double d = t.elapsed();
+			std::cout << "Display: " << 1 / ((d / 1000) / framecount ) << "fps" << std::endl;
+			framecount = 0;
+			t.restart();
+		}
         // this section will probably change in the future.
         original = threadBuffer.read();
         cthFrame = cth->process( original );
 
         if( track.backproject_mode_ && cth->track_object_ ){
-            Circle retCircle = track.process(cthFrame);
-            if(int(retCircle.radius_) > 0 && retCircle.radius_ <  32768){
-                cvCircle(original,retCircle.center_,retCircle.radius_,CV_RGB(255,0,0),3);
-                cvCircle(original,retCircle.center_, 3,CV_RGB(255,0,0), -1, CV_AA, 0);
+            Circle filtered = track.process(cthFrame);
+            if(int(filtered.radius_) > 0 && filtered.radius_ <  32768){
+                cvCircle(original,filtered.center_,filtered.radius_,CV_RGB(255,0,0),2);
+                cvCircle(original,filtered.center_, 1,CV_RGB(255,0,0), -1, CV_AA, 0);
             }
-			//cvShowImage("backProject", cthFrame);
+            /*
+			Circle truecircle = track.filtered;
+			if(int(truecircle.radius_) > 0 && truecircle.radius_ <  32768){
+				cvCircle(original,truecircle.center_,truecircle.radius_,CV_RGB(0,255,0),2);
+				cvCircle(original,truecircle.center_, 1,CV_RGB(0,255,0), -1, CV_AA, 0);
+			}
+			*/
+			cvShowImage("backProject", cthFrame);
         }
 
         cvShowImage("CamShiftDemo", original);

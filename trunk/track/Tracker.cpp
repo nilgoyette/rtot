@@ -5,48 +5,41 @@
 Tracker::Tracker(CvSize size) : size_(size){
 	mask_ = cvCreateImage(size_,8,1);
 	//essayer CalcOpticalFlowPyrLK pourais etre cool aussi
-	int dynam_params = 4;
-    int measure_params = 2; 
-
-
-    backproject_mode_ = false;
-    kalman = cvCreateKalman(2, 2, 0);
-    cvSetIdentity(kalman->measurement_matrix, cvRealScalar(1));     // identity
-    cvSetIdentity(kalman->error_cov_post, cvRealScalar(1));         // identity
-    cvSetIdentity(kalman->process_noise_cov, cvRealScalar(0.4));
-    cvSetIdentity(kalman->measurement_noise_cov, cvRealScalar(3));
-    state = cvCreateMat(2, 1, CV_32FC1);                            // (phi, delta_phi)
-    kalman_ = cvCreateKalman(dynam_params, measure_params, 0);
-    state_ = cvCreateMat(measure_params, 1, CV_32FC1); // (phi, delta_phi)
-	
-	cvRandInit( &rng_, 0, 1, -1, CV_RAND_UNI );
-	cvRandSetRange( &rng_, 0, 1, 0 ); 
-	rng_.disttype = CV_RAND_NORMAL; 
-    cvRand( &rng_, state_ ); 
+	int dynam_params = 6;
+    int measure_params = 3; 
+    int control_params = 0;
+    backproject_mode_ = true;
+    kalman_ = cvCreateKalman(dynam_params, measure_params,0);
+	state_ = cvCreateMat(measure_params, 1, CV_32FC1); // (phi, delta_phi)
 	// F matrix data 
 	// F is transition matrix.  It relates how the states interact 
 	// For single input fixed velocity the new value 
 	// depends on the previous value and velocity- hence 1 0 1 0 
 	// on top line. New velocity is independent of previous 
 	// value, and only depends on previous velocity- hence 0 1 0 1 on second row 
-	const float F[] = { 
-		1, 0, 1, 0,// 0, 0,	//x + dx 
-		0, 1, 0, 1,// 0, 0,	//y + dy 
-		0, 0, 1, 0,// 0, 0,	//dx = dx 
-		0, 0, 0, 1,// 0, 0,	//dy = dy 
-		//0, 0, 0, 0, 1, 0,	//width 
-		//0, 0, 0, 0, 0, 1,	//height 
+	const float A[] = { 
+		1, 0, 0, 1, 0, 0, //x + dx 
+		0, 1, 0, 0, 1, 0, //y + dy 
+		0, 0, 1, 0, 0, 1, //z + dz 
+		0, 0, 0, 1, 0, 0, //dx = dx
+		0, 0, 0, 0, 1, 0, //dy = dy
+        0, 0, 0, 0, 0, 1, //dz = dz
 	};
-	memcpy( kalman_->transition_matrix->data.fl, F, sizeof(F)); 
-	cvSetIdentity( kalman_->measurement_matrix, cvRealScalar(1) ); // (H) 
-	cvSetIdentity( kalman_->process_noise_cov, cvRealScalar(0.4) ); // (Q) 
-	cvSetIdentity( kalman_->measurement_noise_cov, cvRealScalar(3) ); // (R) 
-	cvSetIdentity( kalman_->error_cov_post, cvRealScalar(1)); 
-	kalman_->state_post->data.fl[0] = (float)(1);	//center x 
-	kalman_->state_post->data.fl[1] = (float)(1);	//center y 
-	kalman_->state_post->data.fl[2] = (float)0;	 //dx 
-	kalman_->state_post->data.fl[3] = (float)0;	 //dy 
+	const float H[] = { 
+		1, 0, 0, 0, 0, 0, //x + dx 
+		0, 1, 0, 0, 0, 0, //y + dy 
+		0, 0, 1, 0, 0, 0, //z + dz 
+	};
 
+	memcpy( kalman_->transition_matrix->data.fl, A, sizeof(A)); 
+	memcpy( kalman_->measurement_matrix->data.fl, H, sizeof(H)); 
+
+	//cvSetIdentity( kalman_->measurement_matrix, cvRealScalar(1) ); // (H) 
+	cvSetIdentity( kalman_->error_cov_post, cvRealScalar(1)); 
+	cvSetIdentity( kalman_->process_noise_cov, cvRealScalar(1e-20) ); // (Q) 
+	cvSetIdentity( kalman_->measurement_noise_cov, cvRealScalar(1e-20) ); // (R) 
+	cvZero(kalman_->state_post);
+	cvZero(kalman_->state_pre);
 	gotBlob = false;
 }
 
@@ -64,8 +57,8 @@ const Circle& Tracker::process(IplImage* backproject) throw() {
    //	return current;
 	if ( findBlob(backproject,NULL) )
 		return current;
-	getPrediction(current);
-    return current;
+	getPrediction(filtered);
+    return filtered;
 }
 
 void Tracker::setMask(){
@@ -83,13 +76,19 @@ void Tracker::setMask(){
 }
 bool Tracker::findBlob(IplImage* image,IplImage* mask){
 	blobs = CBlobResult(image,mask, 0);
-	blobs.Filter(blobs, B_EXCLUDE, CBlobGetArea(), B_GREATER, 5000);
+	blobs.Filter(blobs, B_EXCLUDE, CBlobGetArea(), B_GREATER,40000);
 	if (blobs.GetNumBlobs() > 0) {
 		CBlob *currentBlob = blobs.GetBlob(0);
 		current.init(currentBlob->GetBoundingBox());
-		updatePrediction(current);
-		//getPrediction(current);
-		return true;
+		if (current.radius_ > 5){
+			filtered.init(currentBlob->GetBoundingBox());
+			updatePrediction(filtered);
+			getPrediction(filtered);
+			return true;
+		}else {
+			return false;
+		}
+		
 	}
 	return false;
 }
@@ -98,6 +97,7 @@ bool Tracker::findBlob(IplImage* image,IplImage* mask){
 void Tracker::updatePrediction(Circle &c){
 	state_->data.fl[0] = (float)(c.center_.x);	//center x 
 	state_->data.fl[1] = (float)(c.center_.y);	//center y 
+	state_->data.fl[2] = (float)(c.radius_);	//center y 
 	bMeasurement_ = true;  
 }
 
@@ -105,7 +105,7 @@ void Tracker::getPrediction(Circle &c) {
 	const CvMat* prediction = cvKalmanPredict( kalman_, 0 ); 
 	c.center_.x = (int)prediction->data.fl[0]; 
 	c.center_.y = (int)prediction->data.fl[1];
-
+    c.radius_   = (int)prediction->data.fl[2];
 	// If we have received the real position recently, then use that position to correct 
 	// the kalman filter.  If we haven't received that position, then correct the kalman 
 	// filter with the predicted position 
@@ -119,6 +119,7 @@ void Tracker::getPrediction(Circle &c) {
 		// update with the predicted position 	
 		state_->data.fl[0] = (float)c.center_.x; 
 		state_->data.fl[1] = (float)c.center_.y; 
+	//	state_->data.fl[2] = (float)c.radius_; 
 	} 
 	// adjust Kalman filter state 
 	cvKalmanCorrect( kalman_, state_ ); 
