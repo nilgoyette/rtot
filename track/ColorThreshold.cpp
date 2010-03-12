@@ -70,7 +70,7 @@ IplImage* ColorThreshold::process(IplImage* frame){
         hist_.getBackProject(frame,backproject_);
      		//test test begin
 			cvNormalize(backproject_, backproject_, 0, 255, CV_MINMAX);
-			cvSmooth(backproject_, backproject_, CV_GAUSSIAN, 5,5, 0, 0);
+			cvSmooth(backproject_, backproject_, CV_GAUSSIAN, 31,31, 0, 0);
 			cvThreshold(backproject_, backproject_, 20, 255, CV_THRESH_BINARY);
 			int dia = 300/20 + 1;
 			cvMorphologyEx(backproject_, backproject_, NULL,se21_,CV_MOP_CLOSE); // See completed example for cvClose definition	

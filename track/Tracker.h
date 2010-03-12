@@ -16,8 +16,9 @@ class Tracker : Uncopiable<> {
         const Circle& process(IplImage* backproject) throw();
         bool backproject_mode_;
 		Circle current;
+		Circle filtered;
     private:
-        CvKalman* kalman;
+        
         CvMat* state;
         CBlobResult blobs;
         CBlob *currentBlob;
