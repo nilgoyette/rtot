@@ -12,7 +12,7 @@
 
 class TripleBuffering : Uncopiable<> {
 	public:
-		TripleBuffering(const CvSize s) throw();
+		TripleBuffering(const CvSize s,bool) throw();
 		~TripleBuffering(void) throw();
 		void write(const IplImage* const frame) throw();
 		IplImage* read() throw();
@@ -22,7 +22,7 @@ class TripleBuffering : Uncopiable<> {
 		boost::mutex mutswap_;
 		boost::mutex mutcond_;
 		bool ready_;
-
+        bool blocking_;
 		IplImage *buffer1_;
 		IplImage *buffer2_;
 		IplImage *buffer3_;

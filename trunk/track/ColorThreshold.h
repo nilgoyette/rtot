@@ -3,7 +3,8 @@
 
 #include "cv.h"
 #include "Histogram.h"
-
+#include "Tracker.h"
+#include "TripleBuffering.h"
 class ColorThreshold
 {
 public:
@@ -11,21 +12,23 @@ public:
 	void turnOffTracking();
 	bool track_object_;    
 	bool calcule_hist_;
-    ColorThreshold(CvSize);
+    ColorThreshold(CvSize,TripleBuffering&,Tracker&);
     ~ColorThreshold(void);
+	void operator()() throw();
     IplImage* process(IplImage*);
-	int th;
+	CvRect selection_;
+	bool select_object_;
 private:
+	TripleBuffering& source_; // Concurrent image queue
+	Tracker& track_;
 	IplImage* backproject_;
 	int threshold_;
 	IplConvKernel *se21_;
 	IplConvKernel *se11_;
 	bool calcHist_;
-	CvRect selection_;
 	CvPoint origin_;
 	CvSize size_;
 	bool initialized_;
-	bool select_object_;
 	Histogram hist_;
 
 };
