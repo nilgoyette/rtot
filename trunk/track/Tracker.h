@@ -15,6 +15,7 @@ class Tracker : Uncopiable<> {
         Tracker(CvSize);
         const Circle& process(IplImage* backproject) throw();
 		const Circle& getNext() throw();
+
         bool backproject_mode_;
 		Circle current;
 		Circle filtered;
@@ -29,7 +30,8 @@ class Tracker : Uncopiable<> {
 		bool bMeasurement_; 
         CvSize size_;
 		bool gotBlob;
-		bool findBlob(IplImage* image,IplImage* mask);
+
+		bool findBlob(IplImage* image, IplImage* mask);
 };
 
 #endif

@@ -1,5 +1,6 @@
 
 #include "Grabber.h"
+
 #include <iostream>
 
 Grabber::Grabber(const int camId, const CvSize resolution, TripleBuffering& buffer) throw()
@@ -7,7 +8,7 @@ Grabber::Grabber(const int camId, const CvSize resolution, TripleBuffering& buff
 		  capture_(NULL),
 		  sink_(buffer),
 		  initialized_(false),
-          exit_(true){
+          exit_(true) {
 	capture_ = cvCaptureFromCAM(camId_);
 	cvSetCaptureProperty(capture_, CV_CAP_PROP_FRAME_WIDTH, resolution.width);
 	cvSetCaptureProperty(capture_, CV_CAP_PROP_FRAME_HEIGHT, resolution.height);
@@ -17,9 +18,6 @@ Grabber::Grabber(const int camId, const CvSize resolution, TripleBuffering& buff
 		return;
 	}
 	initialized_ = true;
-
-	
-
 }
 
 Grabber::~Grabber(void) throw() {
@@ -43,8 +41,9 @@ void Grabber::operator()() throw() {
 	while (exit_) {
         beforeGrab();
 		frame = cvQueryFrame(capture_); 
-		if(!frame)
+		if (!frame) {
 			return;
+		}
 		sink_.write(frame);
 	}
 }

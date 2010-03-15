@@ -1,9 +1,10 @@
+
 #ifndef __MYASSERT_H__
 #define __MYASSERT_H__
 
 #include <crtdefs.h>
 
-#undef  assert
+#undef assert
 
 #ifdef  __cplusplus
 extern "C" {
@@ -16,6 +17,5 @@ _CRTIMP void __cdecl _wassert(_In_z_ const wchar_t * _Message, _In_z_ const wcha
 #endif
 
 #define assert(_Expression) (void)( (!!(_Expression)) || (_wassert(_CRT_WIDE(#_Expression), _CRT_WIDE(__FILE__), __LINE__), 0) )
-
 
 #endif

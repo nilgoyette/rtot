@@ -1,14 +1,19 @@
+
 #ifndef __KALMAN_H__
 #define __KALMAN_H__
-#include "cv.h"
-#include "Circle.hpp"
-#include <boost/thread.hpp>
+
 #include <iostream>
+
+#include <boost/thread.hpp>
+
+#include "cv.h"
+
+#include "Circle.hpp"
 #include "myassert.h"
 
-#define Mf(a,i,j) CV_MAT_ELEM( *(a), float, i, j ) 
-class Kalman
-{
+#define Mf(a, i, j) CV_MAT_ELEM( *(a), float, i, j )
+
+class Kalman {
 public:
 	Kalman(void) : totalerr(0.0) {
 		firstFrame = true;
@@ -136,36 +141,37 @@ public:
 			          prediction->data.fl[1],
 					  prediction->data.fl[2]);
 	}
-private:
-	void setFirst(Circle &c)
-	{
-		totalerr = 0.0;
-		Mf(kalman_->state_post,0,0) = c.x_;
-		Mf(kalman_->state_post,1,0) = c.y_;
-		Mf(kalman_->state_post,2,0) = c.radius_;
-		Mf(kalman_->state_pre,0,0) = c.x_;
-		Mf(kalman_->state_pre,1,0) = c.y_;
-		Mf(kalman_->state_pre,2,0) = c.radius_;
-		currentFrame = c;
-		previousFrame = c;
-	}
-	double calculateDistance(){
-		return sqrt(pow(Mf(predictedState_,0,0) - Mf(state_,0,0),2) +
-			pow(Mf(predictedState_,1,0) - Mf(state_,1,0),2) +
-			pow(Mf(predictedState_,2,0) - Mf(state_,2,0),2));
-	}
-	bool gotBlob;
-	bool firstFrame;
-	double totalerr;
-	CvKalman* kalman_;
-	CvMat* state_;
-	CvMat* predictedState_;
-	
-	Circle currentFrame;
-	Circle previousFrame;
-	double dt_;
-    bool bMeasurement_;
 
+	private:
+		void setFirst(Circle &c) {
+			totalerr = 0.0;
+			Mf(kalman_->state_post,0,0) = c.x_;
+			Mf(kalman_->state_post,1,0) = c.y_;
+			Mf(kalman_->state_post,2,0) = c.radius_;
+			Mf(kalman_->state_pre,0,0) = c.x_;
+			Mf(kalman_->state_pre,1,0) = c.y_;
+			Mf(kalman_->state_pre,2,0) = c.radius_;
+			currentFrame = c;
+			previousFrame = c;
+		}
+
+		double calculateDistance() {
+			return sqrt(pow(Mf(predictedState_,0,0) - Mf(state_,0,0),2) +
+				pow(Mf(predictedState_,1,0) - Mf(state_,1,0),2) +
+				pow(Mf(predictedState_,2,0) - Mf(state_,2,0),2));
+		}
+
+		bool gotBlob;
+		bool firstFrame;
+		double totalerr;
+		CvKalman* kalman_;
+		CvMat* state_;
+		CvMat* predictedState_;
+		
+		Circle currentFrame;
+		Circle previousFrame;
+		double dt_;
+		bool bMeasurement_;
 };
 
 #endif

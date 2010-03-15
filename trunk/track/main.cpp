@@ -1,5 +1,7 @@
+
 #include <iostream>
 #include <windows.h>
+
 #include <boost/thread.hpp>
 
 #include "Grabber.h"
@@ -17,31 +19,28 @@ using namespace std;
 ColorThreshold *colorThreshold;
 bool show_hist = 1;
 
-void on_mouse_event( int event, int x, int y, int flags, void* param ){
+void on_mouse_event(int event, int x, int y, int flags, void* param ) {
     colorThreshold->on_mouse(event, x, y, flags,param);
 }
 
-bool checkKeys(Tracker &t, ColorThreshold* ct){
+bool checkKeys(Tracker &t, ColorThreshold* ct) {
     bool retval = true;
     int c = cvWaitKey(10);
-    switch( (char) c )
-    {
-    case 27:
-        retval = false;
-        break;
-    case 'b':
-        t.backproject_mode_ ^= 1;
-        break;
-    case 'c':
-        ct->turnOffTracking();
-        break;
-    default:
-    ;
+    switch(static_cast<char>(c)) {
+		case 27:
+			retval = false;
+			break;
+		case 'b':
+			t.backproject_mode_ ^= 1;
+			break;
+		case 'c':
+			ct->turnOffTracking();
+			break;
     }
     return retval;
 }
 
-void printMenu(){
+void printMenu() {
     printf( "Hot keys: \n"
         "\tESC - quit the program\n"
         "\tc - stop the tracking\n"
@@ -54,44 +53,50 @@ int main(int argc, char** argv) {
 	cvNamedWindow("backProject", 1);
 
     CvSize resolution = cvSize(320, 240);
-	TripleBuffering threadBuffer(resolution,false);
-	TripleBuffering threadBuffer2(resolution,true);
+	TripleBuffering threadBuffer(resolution, false);
+	TripleBuffering threadBuffer2(resolution, false); // TODO : mettre à true!!!
     DebugGrabber grabber(0, resolution, threadBuffer);
 	Tracker track(resolution);
 	colorThreshold = new ColorThreshold(resolution,threadBuffer2,track);
 	boost::thread threadGrabber(&Grabber::operator(), &grabber);
 	boost::thread threadColorThreshold(&ColorThreshold::operator(), colorThreshold);
 
-    cvSetMouseCallback( "CamShiftDemo", on_mouse_event, 0);
+    cvSetMouseCallback("CamShiftDemo", on_mouse_event, 0);
     printMenu();
     IplImage* original = NULL;
 	IplImage* renderFrame = cvCreateImage(resolution, 8, 3);
-    bool loop = true;
 	Timer t;
 	t.start();
 	unsigned int framecount = 0;
-    while(loop) {
-        // this section will probably change in the future.
+
+	bool loop = true;
+    while (loop) {
+        // This section will probably change in the future.
 		IplImage* tmp = threadBuffer.read();
-		if (tmp != original){
+		if (tmp != original) {
             threadBuffer2.write(tmp);          
 			original = tmp;
 		}
+
 		cvCopyImage(tmp,renderFrame);
-		if( colorThreshold->select_object_ && colorThreshold->selection_.width > 0 && colorThreshold->selection_.height > 0 )
-		{
-			cvSetImageROI( renderFrame,colorThreshold->selection_ );
-			cvXorS( renderFrame, cvScalarAll(255), renderFrame, 0 );
-			cvResetImageROI( renderFrame );
+		if ( colorThreshold->select_object_ &&
+			 colorThreshold->selection_.width > 0 &&
+			 colorThreshold->selection_.height > 0) {
+		    cvSetImageROI(renderFrame,colorThreshold->selection_);
+			cvXorS(renderFrame, cvScalarAll(255), renderFrame, 0);
+			cvResetImageROI(renderFrame);
 		}
-        if( track.backproject_mode_ && colorThreshold->track_object_ ){
-			Circle filtered = track.getNext();		
-            if(int(filtered.radius_) > 0 && int(filtered.radius_) <  32768){
-                cvCircle(renderFrame,filtered.getCenter(),int(filtered.radius_),CV_RGB(255,0,0),2);
-                cvCircle(renderFrame,filtered.getCenter(), 1,CV_RGB(255,0,0), -1, CV_AA, 0);
+
+        if (track.backproject_mode_ && colorThreshold->track_object_ ) {
+			Circle filtered = track.getNext();
+			const int RADIUS = static_cast<int>(filtered.radius_);
+            if (RADIUS > 0 && RADIUS < 32768) {
+				const CvScalar CIRCLE_SCALAR = CV_RGB(255, 0, 0);
+                cvCircle(renderFrame, filtered.getCenter(), RADIUS, CV_RGB(255, 0, 0), 2);
+                cvCircle(renderFrame, filtered.getCenter(), 1, CV_RGB(255, 0, 0), -1, CV_AA, 0);
             }
-			
         }
+
         cvShowImage("CamShiftDemo", renderFrame);
         loop = checkKeys(track, colorThreshold);
 		if (++framecount == 60) {
@@ -100,13 +105,17 @@ int main(int argc, char** argv) {
 			framecount = 0;
 		}
     }
+
 	cvReleaseImage(&renderFrame);
-    // this guarenties that the thread exits without errors
-    grabber.exit();
-    threadGrabber.join();
-    colorThreshold->exit();
-    threadColorThreshold.join();
+
+    // The call to exit() guarenties that the thread exits without error    
+	
+	colorThreshold->exit();
+	threadColorThreshold.join();
+
+	grabber.exit();
+	threadGrabber.join();
     delete colorThreshold;
+
     return 0;
 }
-

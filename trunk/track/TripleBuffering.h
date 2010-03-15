@@ -12,7 +12,7 @@
 
 class TripleBuffering : Uncopiable<> {
 	public:
-		TripleBuffering(const CvSize s,bool) throw();
+		TripleBuffering(const CvSize s, bool) throw();
 		~TripleBuffering(void) throw();
 		void write(const IplImage* const frame) throw();
 		IplImage* read() throw();
