@@ -18,6 +18,7 @@ public:
     IplImage* process(IplImage*);
 	CvRect selection_;
 	bool select_object_;
+    void exit();
 private:
 	TripleBuffering& source_; // Concurrent image queue
 	Tracker& track_;
@@ -30,7 +31,7 @@ private:
 	CvSize size_;
 	bool initialized_;
 	Histogram hist_;
-
+    volatile bool exit_;
 };
 
 #endif
