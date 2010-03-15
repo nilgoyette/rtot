@@ -85,9 +85,9 @@ public:
 		double pctA = 0.4;
 		double pctB = 1.0-pctA;
 		currentFrame = Circle(
-			c.x_*pctA + previousFrame.x_*pctB,
-			c.y_*pctA + previousFrame.y_*pctB,
-			c.radius_*pctA + previousFrame.radius_*pctB
+			float(c.x_*pctA + previousFrame.x_*pctB),
+			float(c.y_*pctA + previousFrame.y_*pctB),
+			float(c.radius_*pctA + previousFrame.radius_*pctB)
 			);
 	
 		Mf(state_,0,0) = c.x_;

@@ -29,7 +29,7 @@ class Grabber : Uncopiable<> {
         IplImage *image_;       // 
 
         Grabber(const Grabber&);
-        bool exit_;
+        volatile bool exit_;
 };
 
 #endif

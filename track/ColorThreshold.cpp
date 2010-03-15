@@ -14,6 +14,10 @@ ColorThreshold::ColorThreshold(CvSize size,TripleBuffering& source,Tracker& trac
 	//th= 0;
 }
 
+void ColorThreshold::exit(){
+    exit_ = false;
+}
+
 ColorThreshold::~ColorThreshold(void)
 {
     cvReleaseImage(&backproject_);

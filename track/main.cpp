@@ -14,11 +14,11 @@
 #endif
 
 using namespace std;
-ColorThreshold *cth;
+ColorThreshold *colorThreshold;
 bool show_hist = 1;
 
 void on_mouse_event( int event, int x, int y, int flags, void* param ){
-    cth->on_mouse(event, x, y, flags,param);
+    colorThreshold->on_mouse(event, x, y, flags,param);
 }
 
 bool checkKeys(Tracker &t, ColorThreshold* ct){
@@ -56,15 +56,15 @@ int main(int argc, char** argv) {
     CvSize resolution = cvSize(320, 240);
 	TripleBuffering threadBuffer(resolution,false);
 	TripleBuffering threadBuffer2(resolution,true);
-    DebugGrabber g(0, resolution, threadBuffer);
+    DebugGrabber grabber(0, resolution, threadBuffer);
 	Tracker track(resolution);
-	cth = new ColorThreshold(resolution,threadBuffer2,track);
-	boost::thread tG(&Grabber::operator(), &g);
-	boost::thread tC(&ColorThreshold::operator(), cth);
+	colorThreshold = new ColorThreshold(resolution,threadBuffer2,track);
+	boost::thread threadGrabber(&Grabber::operator(), &grabber);
+	boost::thread threadColorThreshold(&ColorThreshold::operator(), colorThreshold);
 
     cvSetMouseCallback( "CamShiftDemo", on_mouse_event, 0);
     printMenu();
-    IplImage* original;
+    IplImage* original = NULL;
 	IplImage* renderFrame = cvCreateImage(resolution, 8, 3);
     bool loop = true;
 	Timer t;
@@ -78,13 +78,13 @@ int main(int argc, char** argv) {
 			original = tmp;
 		}
 		cvCopyImage(tmp,renderFrame);
-		if( cth->select_object_ && cth->selection_.width > 0 && cth->selection_.height > 0 )
+		if( colorThreshold->select_object_ && colorThreshold->selection_.width > 0 && colorThreshold->selection_.height > 0 )
 		{
-			cvSetImageROI( renderFrame,cth->selection_ );
+			cvSetImageROI( renderFrame,colorThreshold->selection_ );
 			cvXorS( renderFrame, cvScalarAll(255), renderFrame, 0 );
 			cvResetImageROI( renderFrame );
 		}
-        if( track.backproject_mode_ && cth->track_object_ ){
+        if( track.backproject_mode_ && colorThreshold->track_object_ ){
 			Circle filtered = track.getNext();		
             if(int(filtered.radius_) > 0 && int(filtered.radius_) <  32768){
                 cvCircle(renderFrame,filtered.getCenter(),int(filtered.radius_),CV_RGB(255,0,0),2);
@@ -93,7 +93,7 @@ int main(int argc, char** argv) {
 			
         }
         cvShowImage("CamShiftDemo", renderFrame);
-        loop = checkKeys(track, cth);
+        loop = checkKeys(track, colorThreshold);
 		if (++framecount == 60) {
 			double d = t.elapsed();
 			std::cout << "Display: " << 1 / ((d / 1000) / framecount ) << "fps" << std::endl;
@@ -102,9 +102,11 @@ int main(int argc, char** argv) {
     }
 	cvReleaseImage(&renderFrame);
     // this guarenties that the thread exits without errors
-    g.exit();
-    tG.join();
-    delete cth;
+    grabber.exit();
+    threadGrabber.join();
+    colorThreshold->exit();
+    threadColorThreshold.join();
+    delete colorThreshold;
     return 0;
 }
 
