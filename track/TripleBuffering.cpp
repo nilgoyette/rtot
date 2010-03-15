@@ -3,13 +3,11 @@
 
 using namespace std;
 
-TripleBuffering::TripleBuffering(const CvSize s,bool blocking) throw()
-		: ready_(false),
-		  blocking_(blocking) {
-	// TODO : Trouver l'enum pour 8 et 3
-	buffer1_ = cvCreateImage(s, 8, 3);
-    buffer2_ = cvCreateImage(s, 8, 3);
-	buffer3_ = cvCreateImage(s, 8, 3);
+TripleBuffering::TripleBuffering(const CvSize s, bool blocking) throw()
+		: ready_(false), blocking_(blocking) {
+	buffer1_ = cvCreateImage(s, IPL_DEPTH_8U, 3);
+    buffer2_ = cvCreateImage(s, IPL_DEPTH_8U, 3);
+	buffer3_ = cvCreateImage(s, IPL_DEPTH_8U, 3);
 }
 
 TripleBuffering::~TripleBuffering(void) throw() {
@@ -31,14 +29,17 @@ void TripleBuffering::write(const IplImage* const frame) throw() {
 IplImage* TripleBuffering::read() throw() {
 	if (blocking_){
 		boost::unique_lock<boost::mutex> lock(mutcond_);
-		while(!ready_) {
-			cond_.wait(lock);
+		while (!ready_) {
+			//cond_.wait(lock);
+			boost::system_time timeout = boost::get_system_time() + boost::posix_time::milliseconds(0);
+			cond_.timed_wait(lock, timeout);
+			ready_ = true;
 		}
-	}else{
-		if(!ready_){
-			return buffer3_;
-		}
+	} 
+	if (!ready_) {
+		return buffer3_;
 	}
+	
 	ready_ = false;
 	{
 		// Prevent writer from swapping p2 with p1 

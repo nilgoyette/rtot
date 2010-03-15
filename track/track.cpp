@@ -3,6 +3,13 @@
 // http://www.ee.surrey.ac.uk/Projects/SEP/0607/vision/Code/Onboard%20Visual%20System/kalman.cpp
 //////////////////////////////////////////////////////////////////////////
 
+/*
+	NOTES
+	------------------------------
+	CE FICHIER N'EST PAS UTILISÉ. C'ÉTAIT UNIQUEMENT UN PROOF OF CONCEPT
+	NE PAS PRENDRE EN COMPTE
+*/
+
 #ifdef _CH_
 #pragma package <opencv>
 #endif

@@ -3,14 +3,14 @@
 #define __DEBUG_GRABBER_H__
 
 #include <iostream>
+
 #include "Grabber.h"
 #include "Timer.hpp"
 
 class DebugGrabber : public Grabber {
 	public:
 		DebugGrabber(const int camId, const CvSize resolution, TripleBuffering& buffer)
-			: Grabber(camId, resolution, buffer) , started(false) , framecount(0) {
-		}
+			: Grabber(camId, resolution, buffer) , started(false) , framecount(0) {}
 
 		virtual void beforeGrab() throw() {
 			if (!started) {
