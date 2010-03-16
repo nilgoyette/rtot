@@ -7,7 +7,8 @@
 #include "highgui.h"
 
 ColorThreshold::ColorThreshold(CvSize size,TripleBuffering& source,Tracker& track) 
-    : source_(source),
+    : exit_(true),
+      source_(source),
 	  track_(track),
       backproject_(cvCreateImage(size, 8, 1)),
 	  threshold_(100), 
