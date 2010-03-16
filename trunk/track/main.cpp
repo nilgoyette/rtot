@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
 
     CvSize resolution = cvSize(320, 240);
 	TripleBuffering threadBuffer(resolution, false);
-	TripleBuffering threadBuffer2(resolution, false); // TODO : mettre à true!!!
+	TripleBuffering threadBuffer2(resolution, true); // TODO : mettre à true!!!
     DebugGrabber grabber(0, resolution, threadBuffer);
 	Tracker track(resolution);
 	colorThreshold = new ColorThreshold(resolution,threadBuffer2,track);
