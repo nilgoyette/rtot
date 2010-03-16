@@ -30,7 +30,7 @@ IplImage* TripleBuffering::read() throw() {
 	if (blocking_) {
 		boost::unique_lock<boost::mutex> lock(mutcond_);
 		while (!ready_) { 
-			boost::system_time timeout = boost::get_system_time() + boost::posix_time::milliseconds(0);
+			boost::system_time timeout = boost::get_system_time() + boost::posix_time::milliseconds(100);
 			bool timedout = cond_.timed_wait(lock, timeout);
 			if (!timedout) {
 				return buffer3_;
