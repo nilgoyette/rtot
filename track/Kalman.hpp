@@ -1,3 +1,8 @@
+// Implement a Kalman filter that allow to smooth and predict 
+// a 3d position by estimating velocity.
+// http://bilgin.esme.org/BitsBytes/KalmanFilterforDummies/tabid/196/Default.aspx
+// http://www.innovatia.com/software/papers/kalman.htm
+// http://www.cs.unc.edu/~welch/kalman/maybeck.html
 
 #ifndef __KALMAN_H__
 #define __KALMAN_H__
@@ -20,14 +25,18 @@ public:
 		const int control_params = 0;
 		const int measure_params = 6;
 		const int dynam_params = 6;
-		const double processNoise = 0.001;
+			
+		const double processNoise = 0.01;
         const double measurementVariance = 0.001;
 	    const double measurementVelocityVariance = 0.0001;
+    
 
 		state_ = cvCreateMat(measure_params, 1, CV_32FC1);
 		predictedState_ = cvCreateMat(measure_params, 1, CV_32FC1);
 		// Setup Kalman tracker with 6 model variable2, 6 measurement variables, and no control variables
 		kalman_ = cvCreateKalman( dynam_params, measure_params, control_params );
+
+
 
 		// Transition matrix F describes model parameters at and k and k+1
 		// the new value depends on the previous value and velocity
@@ -94,7 +103,7 @@ public:
 			float(c.y_*pctA + previousFrame.y_*pctB),
 			float(c.radius_*pctA + previousFrame.radius_*pctB)
 			);
-	
+	    
 		Mf(state_,0,0) = c.x_;
 		Mf(state_,1,0) = c.y_;
 		Mf(state_,2,0) = c.radius_;
