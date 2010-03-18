@@ -9,7 +9,7 @@ enum Tracking { UNINITIALIZED = -1, INITIALIZED = 0, TRACKING = 1};
 class Histogram {
 	public:
 		bool select_object_;
-	   
+	    CvHistogram *hist_;
 		IplImage* planes_[2];
 
 		Histogram(CvSize);
@@ -17,10 +17,10 @@ class Histogram {
 
 		void createHistogram(IplImage* frame, CvRect selection);
 		void getBackProject(IplImage* frame, IplImage*& backproject);
+		void show();
 		CvHistogram* process(IplImage* frame, CvRect selection);
-	   
 	private:
-		CvHistogram *hist_;
+		
 		CvSize size_;
 		
 		int hdims_;
