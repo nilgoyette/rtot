@@ -12,9 +12,9 @@ Histogram::Histogram(CvSize size)
 	  hsv_(cvCreateImage(size, 8, 3)),
 	  c_h_(cvCreateImage(size, 8, 1)),
       c_s_(cvCreateImage(size, 8, 1)),
-	  h_bins_(15),
-	  s_bins_(15),
-      scale_(10),
+	  h_bins_(100),
+	  s_bins_(100),
+      scale_(2),
 	  hist_img_(cvCreateImage(cvSize(h_bins_ * scale_, s_bins_ * scale_ ), 8, 3 )),
       select_object_(0) {
     size_ = size;
@@ -52,23 +52,23 @@ void Histogram::createHistogram(IplImage* frame,CvRect selection) {
     cvResetImageROI(c_h_);
     cvResetImageROI(c_s_);
     cvResetImageROI(hsv_);
+}
 
-    // Calculate histogram image
-    cvZero(hist_img_);
-    float max_value = 0;
-    cvGetMinMaxHistValue(hist_, 0, &max_value, 0, 0);
-    for (int h = 0; h < h_bins_; h++) {
-        for (int s = 0; s < s_bins_; s++) {
-            float bin_val = cvQueryHistValue_2D(hist_, h, s);
-            int intensity = cvRound(bin_val * 255 / max_value);
-            cvRectangle(hist_img_, cvPoint(h * scale_, s * scale_),
-                cvPoint((h + 1) * scale_ - 1, (s + 1) * scale_ - 1),
-                CV_RGB(intensity, intensity, intensity), CV_FILLED);
-        }
-    }
-	
-    //cvNamedWindow( "H-S Histogram", CV_WINDOW_AUTOSIZE) ;
-    //cvShowImage( "H-S Histogram", hist_img_ );
+void Histogram::show(){
+	// Calculate histogram image
+	cvZero(hist_img_);
+	float max_value = 0;
+	cvGetMinMaxHistValue(hist_, 0, &max_value, 0, 0);
+	for (int h = 0; h < h_bins_; h++) {
+		for (int s = 0; s < s_bins_; s++) {
+			float bin_val = cvQueryHistValue_2D(hist_, h, s);
+			int intensity = cvRound(bin_val * 255 / max_value);
+			cvRectangle(hist_img_, cvPoint(h * scale_, s * scale_),
+				cvPoint((h + 1) * scale_ - 1, (s + 1) * scale_ - 1),
+				CV_RGB(intensity, intensity, intensity), CV_FILLED);
+		}
+	}
+	cvShowImage( "Histogram", hist_img_ );
 }
 
 void Histogram::getBackProject(IplImage* frame, IplImage*& backproject) {
