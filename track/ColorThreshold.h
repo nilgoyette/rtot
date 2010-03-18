@@ -27,6 +27,7 @@ class ColorThreshold {
 		IplImage* backproject_;
 		int threshold_;
 		IplConvKernel *se21_;
+		IplConvKernel *setest_;
 		IplConvKernel *se11_;
 		bool calcHist_;
 		CvPoint origin_;
