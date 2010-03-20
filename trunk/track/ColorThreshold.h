@@ -6,7 +6,6 @@
 #include "Histogram.h"
 #include "Tracker.h"
 #include "TripleBuffering.h"
-
 class ColorThreshold {
 	public:
 		void on_mouse(int event, int x, int y, int flags, void* param);
@@ -18,12 +17,12 @@ class ColorThreshold {
 		void operator()() throw();
 		IplImage* process(IplImage*);
 		CvRect selection_;
-		bool select_object_;
 		void exit();
 
 	private:
 		TripleBuffering& source_; // Concurrent image queue
 		Tracker& track_;
+		IplImage* lab_;
 		IplImage* backproject_;
 		int threshold_;
 		IplConvKernel *se21_;
