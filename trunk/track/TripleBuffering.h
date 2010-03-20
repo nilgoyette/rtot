@@ -23,6 +23,7 @@ class TripleBuffering : Uncopiable<> {
 		boost::mutex mutcond_;
 		bool ready_;
         bool blocking_;
+		CvSize s_;
 		IplImage *buffer1_;
 		IplImage *buffer2_;
 		IplImage *buffer3_;

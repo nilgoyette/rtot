@@ -4,7 +4,7 @@
 using namespace std;
 
 TripleBuffering::TripleBuffering(const CvSize s, bool blocking) throw()
-		: ready_(false), blocking_(blocking) {
+		: s_(s), ready_(false), blocking_(blocking) {
 	buffer1_ = cvCreateImage(s, IPL_DEPTH_8U, 3);
     buffer2_ = cvCreateImage(s, IPL_DEPTH_8U, 3);
 	buffer3_ = cvCreateImage(s, IPL_DEPTH_8U, 3);
@@ -17,7 +17,12 @@ TripleBuffering::~TripleBuffering(void) throw() {
 }
 
 void TripleBuffering::write(const IplImage* const frame) throw() {
-    cvCopyImage(frame, buffer1_);
+	if(frame->width > s_.width || frame->height > s_.height)
+	{
+		cvResize(frame,buffer1_);
+	} else {
+		cvCopyImage(frame, buffer1_);
+	}
 	{
 		boost::lock_guard<boost::mutex> lock(mutswap_);
 		std::swap(buffer1_, buffer2_);
