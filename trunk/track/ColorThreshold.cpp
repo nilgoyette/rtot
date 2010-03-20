@@ -64,18 +64,17 @@ IplImage* ColorThreshold::process(IplImage* frame) {
             hist_.createHistogram(frame, selection_);
 			CvArr* src = hist_.hist_->bins;
 			cvMorphologyEx(src,src, NULL, setest_, CV_MOP_CLOSE);
-			cvDilate(src,src,se11_);
+			cvDilate(src,src,setest_);
+			
 			hist_.show();
 			track_object_ = true;
 			calcule_hist_ = false;
 		}
         hist_.getBackProject(frame, backproject_);
-		cvSmooth(backproject_, backproject_, CV_GAUSSIAN, 31, 31, 0, 0);
 		int dia = 300 / 20 + 1;
 		cvThreshold(backproject_, backproject_, 20, 255, CV_THRESH_BINARY);
-		//cvMorphologyEx(backproject_, backproject_, NULL, se21_, CV_MOP_CLOSE); // See completed example for cvClose definition	
-		//cvMorphologyEx(backproject_, backproject_, NULL, se11_, CV_MOP_OPEN );  // See completed example for cvOpen  definition
-       
+		cvMorphologyEx(backproject_, backproject_, NULL, se11_, CV_MOP_OPEN );  // See completed example for cvOpen  definition
+		cvMorphologyEx(backproject_, backproject_, NULL, se21_, CV_MOP_CLOSE); // See completed example for cvClose definition	
 		return backproject_;
     }
     //frame = hist_.aplyRoiToImage(frame,selection_);
