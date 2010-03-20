@@ -10,8 +10,10 @@ Grabber::Grabber(const int camId, const CvSize resolution, TripleBuffering& buff
 		  initialized_(false),
           exit_(true) {
 	capture_ = cvCaptureFromCAM(camId_);
+	const double fps = 30.0;
 	cvSetCaptureProperty(capture_, CV_CAP_PROP_FRAME_WIDTH, resolution.width);
 	cvSetCaptureProperty(capture_, CV_CAP_PROP_FRAME_HEIGHT, resolution.height);
+	cvSetCaptureProperty(capture_, CV_CAP_PROP_FPS, fps);
 
 	if (!capture_) {
 		printf("Could not initialize capturing...\n");

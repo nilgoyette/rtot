@@ -18,9 +18,46 @@
 using namespace std;
 ColorThreshold *colorThreshold;
 bool show_hist = 1;
+CvPoint origin_;
+CvRect selection_;
+bool select_object_ = false;
+CvSize resolutionGrab = cvSize(320, 240);
+CvSize resolutionProcess = cvSize(160, 120);
+double scale = 0.5;
 
 void on_mouse_event(int event, int x, int y, int flags, void* param ) {
-    colorThreshold->on_mouse(event, x, y, flags,param);
+	if (select_object_) {
+		selection_.x = std::min(x, origin_.x);
+		selection_.y = std::min(y, origin_.y);
+		selection_.width = selection_.x + abs(x - origin_.x);
+		selection_.height = selection_.y + abs(y - origin_.y);
+		selection_.x = std::max(selection_.x, 0);
+		selection_.y = std::max(selection_.y, 0);
+		selection_.width = std::min(selection_.width, resolutionGrab.width);
+		selection_.height = std::min(selection_.height, resolutionGrab.height);
+		selection_.width -= selection_.x;
+		selection_.height -= selection_.y;
+	}
+	switch (event) {
+		case CV_EVENT_LBUTTONDOWN:
+			origin_ = cvPoint(x, y);
+			selection_ = cvRect(x, y, 0, 0);
+			select_object_ = true;
+			break;
+		case CV_EVENT_LBUTTONUP:
+			select_object_ = false;
+			if (selection_.width > 0 && selection_.height > 0 ) {
+				colorThreshold->calcule_hist_ = true;
+				colorThreshold->track_object_ = false;
+				CvRect selection = selection_;
+				selection.x = int(selection.x * scale);
+				selection.y = int(selection.y * scale);
+				selection.width = int(selection.width * scale);
+				selection.height = int(selection.height * scale);
+				colorThreshold->selection_ = selection;
+			}
+			break;
+	}
 }
 
 bool checkKeys(Tracker &t, ColorThreshold* ct) {
@@ -51,20 +88,18 @@ void printMenu() {
 int main(int argc, char** argv) {
 	cvNamedWindow("CamShiftDemo", 1);
 	cvNamedWindow("backProject", 1);
-
-    CvSize resolution = cvSize(320, 240);
-	TripleBuffering threadBuffer(resolution, false);
-	TripleBuffering threadBuffer2(resolution, true); // TODO : mettre à true!!!
-    DebugGrabber grabber(0, resolution, threadBuffer);
-	Tracker track(resolution);
-	colorThreshold = new ColorThreshold(resolution,threadBuffer2,track);
+	TripleBuffering threadBuffer(resolutionGrab, false);
+	TripleBuffering threadBuffer2(resolutionProcess, true); // TODO : mettre à true!!!
+    DebugGrabber grabber(0, resolutionGrab, threadBuffer);
+	Tracker track(resolutionProcess);
+	colorThreshold = new ColorThreshold(resolutionProcess,threadBuffer2,track);
 	boost::thread threadGrabber(&Grabber::operator(), &grabber);
 	boost::thread threadColorThreshold(&ColorThreshold::operator(), colorThreshold);
 
     cvSetMouseCallback("CamShiftDemo", on_mouse_event, 0);
     printMenu();
     IplImage* original = NULL;
-	IplImage* renderFrame = cvCreateImage(resolution, 8, 3);
+	IplImage* renderFrame = cvCreateImage(resolutionGrab, 8, 3);
 	Timer t;
 	t.start();
 	unsigned int framecount = 0;
@@ -79,16 +114,20 @@ int main(int argc, char** argv) {
 		}
 
 		cvCopyImage(tmp,renderFrame);
-		if ( colorThreshold->select_object_ &&
-			 colorThreshold->selection_.width > 0 &&
-			 colorThreshold->selection_.height > 0) {
-		    cvSetImageROI(renderFrame,colorThreshold->selection_);
+		if ( select_object_ &&
+			 selection_.width > 0 &&
+			 selection_.height > 0) {
+     	    cvSetImageROI(renderFrame,selection_);
 			cvXorS(renderFrame, cvScalarAll(255), renderFrame, 0);
 			cvResetImageROI(renderFrame);
 		}
 
         if (track.backproject_mode_ && colorThreshold->track_object_ ) {
 			Circle filtered = track.getNext();
+			filtered.x_ =  float(filtered.x_ / scale);
+			filtered.y_ =  float(filtered.y_ / scale);
+			filtered.radius_ = float(filtered.radius_ / scale);
+
 			const int RADIUS = static_cast<int>(filtered.radius_);
             if (RADIUS > 0 && RADIUS < 32768) {
 				const CvScalar CIRCLE_SCALAR = CV_RGB(255, 0, 0);

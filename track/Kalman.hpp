@@ -26,9 +26,11 @@ public:
 		const int measure_params = 6;
 		const int dynam_params = 6;
 			
-		const double processNoise = 0.01;
-        const double measurementVariance = 0.001;
-	    const double measurementVelocityVariance = 0.0001;
+		const double processNoise = 1e-6f;
+        const double measurementVariance = 1e-6f;
+		const double measurementZVariace = 1e-5f;
+	    const double measurementVelocityVariance = 1e-5f;
+		const double measurementZVelocityVariance = 1e-3f;
     
 
 		state_ = cvCreateMat(measure_params, 1, CV_32FC1);
@@ -66,10 +68,10 @@ public:
 		cvSetIdentity( MN, cvRealScalar( 1.0 ) );
 		Mf(MN,0,0) = (float)measurementVariance;
 		Mf(MN,1,1) = (float)measurementVariance;
-		Mf(MN,2,2) = (float)measurementVariance;
+		Mf(MN,2,2) = (float)measurementZVariace;
 		Mf(MN,3,3) = (float)measurementVelocityVariance;
 		Mf(MN,4,4) = (float)measurementVelocityVariance;
-		Mf(MN,5,5) = (float)measurementVelocityVariance;
+		Mf(MN,5,5) = (float)measurementZVelocityVariance;
 
 		cvZero(kalman_->state_post);
 		cvZero(kalman_->state_pre);
@@ -93,6 +95,7 @@ public:
 			firstFrame = false;
 			return;
 		}
+
 		// Update time change in model.
 		// Average position over the last 10 (or so) frames 
 		previousFrame = currentFrame;
@@ -110,8 +113,12 @@ public:
 		Mf(state_,3,0) = float((currentFrame.x_-previousFrame.x_) / dt);
 		Mf(state_,4,0) = float((currentFrame.y_-previousFrame.y_) / dt);
 		Mf(state_,5,0) = float((currentFrame.radius_-previousFrame.radius_) / dt) ;
-        dt_ = dt;
 		bMeasurement_ = true;  
+		CvMat *_F = kalman_->transition_matrix;
+		Mf(_F,0,3) = (float)dt;
+		Mf(_F,1,4) = (float)dt;
+		Mf(_F,2,5) = (float)dt;        
+		cvKalmanCorrect( kalman_, state_ );
 	}
 	Circle getNext(double dt){
 		CvMat *_F = kalman_->transition_matrix;
@@ -120,13 +127,12 @@ public:
 		Mf(_F,2,5) = (float)dt;
 		// Actual Kalman steps
 		const CvMat* prediction = cvKalmanPredict( kalman_, NULL );
-		Mf(predictedState_,0,0) = prediction->data.fl[0]; 
-		Mf(predictedState_,1,0) = prediction->data.fl[1]; 
-		Mf(predictedState_,2,0) = prediction->data.fl[2]; 
-		Mf(predictedState_,3,0) = prediction->data.fl[3]; 
-		Mf(predictedState_,4,0) = prediction->data.fl[4]; 
-		Mf(predictedState_,5,0) = prediction->data.fl[5]; 
-
+		Mf(predictedState_,0,0) = Mf(kalman_->state_pre,0,0);
+		Mf(predictedState_,1,0) = Mf(kalman_->state_pre,1,0);
+		Mf(predictedState_,2,0) = Mf(kalman_->state_pre,2,0);
+		Mf(predictedState_,3,0) = Mf(kalman_->state_pre,3,0);
+		Mf(predictedState_,4,0) = Mf(kalman_->state_pre,4,0);
+		Mf(predictedState_,5,0) = Mf(kalman_->state_pre,5,0);
         // My kalman filter is running faster than my measurements
 		// So this allows the filter to pick up from the 
 	    // last predicted state and continue in between measurements 
@@ -144,8 +150,8 @@ public:
 			Mf(state_,3,0) = Mf(predictedState_,3,0);
 			Mf(state_,4,0) = Mf(predictedState_,4,0);
 			Mf(state_,5,0) = Mf(predictedState_,5,0);
+			cvKalmanCorrect( kalman_, state_ );
 		} 
-		cvKalmanCorrect( kalman_, state_ );
 		return Circle(prediction->data.fl[0],
 			          prediction->data.fl[1],
 					  prediction->data.fl[2]);
@@ -157,9 +163,9 @@ public:
 			Mf(kalman_->state_post,0,0) = c.x_;
 			Mf(kalman_->state_post,1,0) = c.y_;
 			Mf(kalman_->state_post,2,0) = c.radius_;
-			Mf(kalman_->state_pre,0,0) = c.x_;
-			Mf(kalman_->state_pre,1,0) = c.y_;
-			Mf(kalman_->state_pre,2,0) = c.radius_;
+			Mf(kalman_->state_post,3,0) = c.x_;
+			Mf(kalman_->state_post,4,0) = c.y_;
+			Mf(kalman_->state_post,5,0) = c.radius_;
 			currentFrame = c;
 			previousFrame = c;
 		}
