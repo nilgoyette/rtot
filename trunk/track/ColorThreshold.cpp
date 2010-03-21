@@ -14,7 +14,8 @@ ColorThreshold::ColorThreshold(CvSize size,TripleBuffering& source,Tracker& trac
 	  threshold_(100), 
       se21_(cvCreateStructuringElementEx((6 * 2) + 1, (6 * 2) + 1, 6, 6, CV_SHAPE_RECT, NULL)),
       se11_(cvCreateStructuringElementEx((3 * 2) + 1, (3 * 2) + 1, 3, 3, CV_SHAPE_RECT, NULL)),
-	  setest_(cvCreateStructuringElementEx((10 * 2) + 1, (10 * 2) + 1, 10, 10, CV_SHAPE_RECT, NULL)),
+	  seHistogram1_(cvCreateStructuringElementEx((10 * 2) + 1, (10 * 2) + 1, 10, 10, CV_SHAPE_RECT, NULL)),
+	  seHistogram2_(cvCreateStructuringElementEx((4 * 2) + 1, (4 * 2) + 1, 4, 4, CV_SHAPE_RECT, NULL)),
 	  calcHist_(false),
 	  size_(size),
 	  hist_(Histogram(size)),
@@ -29,7 +30,9 @@ ColorThreshold::~ColorThreshold(void) {
     cvReleaseImage(&backproject_);
     cvReleaseStructuringElement(&se21_);
     cvReleaseStructuringElement(&se11_);
-	cvReleaseStructuringElement(&setest_);
+	cvReleaseStructuringElement(&seHistogram1_);
+	cvReleaseStructuringElement(&seHistogram2_);
+	
 	
 }
 
@@ -63,18 +66,17 @@ IplImage* ColorThreshold::process(IplImage* frame) {
 		if (calcule_hist_) {
             hist_.createHistogram(frame, selection_);
 			CvArr* src = hist_.hist_->bins;
-			cvMorphologyEx(src,src, NULL, setest_, CV_MOP_CLOSE);
-			cvDilate(src,src,setest_);
+			cvMorphologyEx(src,src, NULL, seHistogram1_, CV_MOP_CLOSE);
+			cvDilate(src,src,seHistogram2_);
 			
 			hist_.show();
 			track_object_ = true;
 			calcule_hist_ = false;
 		}
         hist_.getBackProject(frame, backproject_);
-		int dia = 300 / 20 + 1;
-		cvThreshold(backproject_, backproject_, 20, 255, CV_THRESH_BINARY);
-		cvMorphologyEx(backproject_, backproject_, NULL, se11_, CV_MOP_OPEN );  // See completed example for cvOpen  definition
+		cvThreshold(backproject_, backproject_, 100, 255, CV_THRESH_BINARY);
 		cvMorphologyEx(backproject_, backproject_, NULL, se21_, CV_MOP_CLOSE); // See completed example for cvClose definition	
+		cvMorphologyEx(backproject_, backproject_, NULL, se11_, CV_MOP_OPEN );  // See completed example for cvOpen  definition
 		return backproject_;
     }
     //frame = hist_.aplyRoiToImage(frame,selection_);
