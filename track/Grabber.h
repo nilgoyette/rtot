@@ -12,7 +12,7 @@
 
 class Grabber : Uncopiable<> {
     public:
-        Grabber(const int, const CvSize, TripleBuffering&) throw();
+        Grabber(const int, const CvSize, TripleBuffering&,TripleBuffering&) throw();
         ~Grabber(void) throw();
         
         void exit();
@@ -24,7 +24,8 @@ class Grabber : Uncopiable<> {
         const int camId_;       //  
         CvCapture* capture_;    // Image acquisition object
         bool initialized_;      // 
-        TripleBuffering& sink_; // Concurrent image queue
+        TripleBuffering& sink1_; // Concurrent image queue
+		TripleBuffering& sink2_; // Concurrent image queue
 
         IplImage *image_;       // 
 

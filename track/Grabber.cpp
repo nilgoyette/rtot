@@ -3,10 +3,11 @@
 
 #include <iostream>
 
-Grabber::Grabber(const int camId, const CvSize resolution, TripleBuffering& buffer) throw()
+Grabber::Grabber(const int camId, const CvSize resolution, TripleBuffering& buffer1,TripleBuffering& buffer2) throw()
 		: camId_(camId),
 		  capture_(NULL),
-		  sink_(buffer),
+		  sink1_(buffer1),
+		  sink2_(buffer2),
 		  initialized_(false),
           exit_(true) {
 	capture_ = cvCaptureFromCAM(camId_);
@@ -46,7 +47,8 @@ void Grabber::operator()() throw() {
 		if (!frame) {
 			return;
 		}
-		sink_.write(frame);
+		sink1_.write(frame);
+		sink2_.write(frame);
 	}
 }
 
