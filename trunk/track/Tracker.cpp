@@ -35,12 +35,8 @@ bool Tracker::findBlob(IplImage* image,IplImage* mask) {
 		blobs.GetNthBlob(CBlobGetArea(),0,blobWithBiggestPerimeter);
 		CBlob *currentBlob = blobs.GetBlob(0);
 		current.init(blobWithBiggestPerimeter.GetBoundingBox());
-		if (static_cast<int>(current.radius_) > 7){
 			kalmanFilter_.setNext((t1.elapsed() / 1000) ,current);
 			return true;
-		} else {
-			return false;
-		}
 	}
 	return false;
 }
