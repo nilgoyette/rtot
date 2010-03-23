@@ -90,7 +90,7 @@ int main(int argc, char** argv) {
 	cvNamedWindow("backProject", 1);
 	TripleBuffering threadBuffer(resolutionGrab, false);
 	TripleBuffering threadBuffer2(resolutionProcess, true); // TODO : mettre à true!!!
-    DebugGrabber grabber(0, resolutionGrab, threadBuffer);
+    DebugGrabber grabber(0, resolutionGrab, threadBuffer,threadBuffer2);
 	Tracker track(resolutionProcess);
 	colorThreshold = new ColorThreshold(resolutionProcess,threadBuffer2,track);
 	boost::thread threadGrabber(&Grabber::operator(), &grabber);
@@ -108,11 +108,6 @@ int main(int argc, char** argv) {
     while (loop) {
         // This section will probably change in the future.
 		IplImage* tmp = threadBuffer.read();
-		if (tmp != original) {
-            threadBuffer2.write(tmp);          
-			original = tmp;
-		}
-
 		cvCopyImage(tmp,renderFrame);
 		if ( select_object_ &&
 			 selection_.width > 0 &&

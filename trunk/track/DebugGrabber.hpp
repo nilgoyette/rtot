@@ -9,8 +9,8 @@
 
 class DebugGrabber : public Grabber {
 	public:
-		DebugGrabber(const int camId, const CvSize resolution, TripleBuffering& buffer)
-			: Grabber(camId, resolution, buffer) , started(false) , framecount(0) {}
+		DebugGrabber(const int camId, const CvSize resolution, TripleBuffering& buffer1,TripleBuffering& buffer2)
+			: Grabber(camId, resolution, buffer1,buffer2) , started(false) , framecount(0) {}
 
 		virtual void beforeGrab() throw() {
 			if (!started) {
