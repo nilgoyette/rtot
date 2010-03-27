@@ -85,12 +85,19 @@ void printMenu() {
         "To initialize tracking, select the object with mouse\n" );
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv) {	
+	double cpuspeed = Timer::getCpuSpeed();
+    //initialize fps limiting variable
+	const int FRAMES_PER_SECOND = 30;
+	const int SKIP_TICKS = 1000 / FRAMES_PER_SECOND;
+	DWORD next_game_tick = timeGetTime();
+	int average_sleep = SKIP_TICKS;
+
 	cvNamedWindow("CamShiftDemo", 1);
 	cvNamedWindow("backProject", 1);
 	TripleBuffering threadBuffer(resolutionGrab, false);
 	TripleBuffering threadBuffer2(resolutionProcess, true); // TODO : mettre à true!!!
-    DebugGrabber grabber(0, resolutionGrab, threadBuffer,threadBuffer2);
+    Grabber grabber(0, resolutionGrab, threadBuffer,threadBuffer2);
 	Tracker track(resolutionProcess);
 	colorThreshold = new ColorThreshold(resolutionProcess,threadBuffer2,track);
 	boost::thread threadGrabber(&Grabber::operator(), &grabber);
@@ -105,7 +112,9 @@ int main(int argc, char** argv) {
 	unsigned int framecount = 0;
 
 	bool loop = true;
+
     while (loop) {
+
         // This section will probably change in the future.
 		IplImage* tmp = threadBuffer.read();
 		cvCopyImage(tmp,renderFrame);
@@ -133,11 +142,20 @@ int main(int argc, char** argv) {
 
         cvShowImage("CamShiftDemo", renderFrame);
         loop = checkKeys(track, colorThreshold);
-		if (++framecount == 60) {
+		if (++framecount == 120) {
 			double d = t.elapsed();
 			std::cout << "Display: " << 1 / ((d / 1000) / framecount ) << "fps" << std::endl;
 			framecount = 0;
 		}
+
+		next_game_tick += SKIP_TICKS;
+		register int sleep_time = next_game_tick - timeGetTime();
+		average_sleep = int(average_sleep*0.2f + 0.8f*sleep_time);
+		if( average_sleep > 0 ) {
+			Timer::AccurateSleeprdtsc(average_sleep,cpuspeed);
+		}
+	    
+
     }
 
 	cvReleaseImage(&renderFrame);
