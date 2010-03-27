@@ -34,6 +34,8 @@ void Grabber::exit(){
 }
 
 void Grabber::operator()() throw() {
+	SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS);
+	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
 	if (!initialized_) {
 		printf("Grabber was not initialised\n");
 		return;
