@@ -1,23 +1,60 @@
 
 #ifndef __TIMER_H__
 #define __TIMER_H__
-
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <mmsystem.h>
 #undef max
 #undef min
+#pragma comment(lib, "winmm.lib")
 
 class Timer {
 	public:
 		Timer::Timer(void) throw() : running_(false) {
-			start_.QuadPart = 0;
-			QueryPerformanceFrequency(&frequency_);
+            SetProcessAffinityMask(GetCurrentProcess(),1);
 			SetThreadAffinityMask(GetCurrentThread(), 1);
-			frequency_.QuadPart /= 1000;
+			timeBeginPeriod(1);
+		}
+		static __inline LARGE_INTEGER Timer::rdtsc() {
+			LARGE_INTEGER retval;
+			__asm {
+				CPUID 
+				RDTSC
+					mov retval.HighPart, edx
+					mov retval.LowPart, eax
+			}
+			return retval;
+		}
+		static __inline double Timer::rdtscElapsed(LARGE_INTEGER t1, LARGE_INTEGER t0,double cpuspeed)
+		{  
+			return (double)(t1.QuadPart - t0.QuadPart)/cpuspeed;
+		}
+
+		static __inline double Timer::getCpuSpeed()
+		{  
+			LARGE_INTEGER b = rdtsc();
+			AccurateSleep(1000);
+			LARGE_INTEGER e = rdtsc();
+            return (e.QuadPart-b.QuadPart)/1000.0f;
+		}
+
+		static void Timer::AccurateSleeprdtsc(DWORD milliSeconds,double cpuspeed) {
+			LARGE_INTEGER from, now;
+			from = rdtsc();
+			bool done = false;
+			double ticks_passed;
+			do {
+				now =  rdtsc();
+				ticks_passed = rdtscElapsed(now,from,cpuspeed);
+				if (ticks_passed >= milliSeconds) {
+					done = true;
+				}
+			} while (!done);
 		}
 
 		void Timer::start(void) throw() {
 			if (!running_) {
-				QueryPerformanceCounter(&start_);
+				start_ = timeGetTime();
 				running_ = true;
 			} else {
 				reset();
@@ -30,61 +67,43 @@ class Timer {
 		}
 
 		void Timer::reset(void) throw() {
-			start_.QuadPart = 0;
+			start_ = timeGetTime();
 			running_ = false;
 		}
 
 		double Timer::elapsed(void) throw() {
-			if (start_.QuadPart) {
-				LARGE_INTEGER current;
-				QueryPerformanceCounter(&current);
-				double mls = static_cast<double>(current.QuadPart - start_.QuadPart) / static_cast<double>(frequency_.QuadPart);
-				start_ = current;
+			if (running_) {
+				DWORD current = timeGetTime();
+				double mls =  (current-start_)*1.0f;
+                start_ = current;
 				return mls;
 			}
 			return 0;
 		}
 
-		void AccurateSleep(DWORD milliSeconds) {
-			static LARGE_INTEGER s_freq = {0, 0};
-			if (s_freq.QuadPart == 0) {
-				QueryPerformanceFrequency(&s_freq);
-			}
-			LARGE_INTEGER from, now;
-			QueryPerformanceCounter(&from);
-			int ticks_to_wait = static_cast<int>(s_freq.QuadPart) / (1000 / milliSeconds);
+		// 1ms resolution on windows xp and about 8.0 us overhead
+		static void Timer::AccurateSleep(DWORD milliSeconds) {
+			DWORD from, now;
+			from = timeGetTime();
 			bool done = false;
-			int ticks_passed;
-			int ticks_left;
-
+			DWORD ticks_passed;
 			do {
-				QueryPerformanceCounter(&now);
-				ticks_passed = static_cast<int>((__int64)now.QuadPart - (__int64)from.QuadPart);
-				ticks_left = ticks_to_wait - ticks_passed;
-
-				if (now.QuadPart < from.QuadPart) {    // time wrap
+				now =  timeGetTime();
+				ticks_passed = now-from;
+				if (now < from) {    // time wrap
 					done = true;
 				}
-				if (ticks_passed >= ticks_to_wait) {
+				if (ticks_passed >= milliSeconds) {
 					done = true;
-				}
-
-				if (!done) {
-					if (ticks_left > static_cast<int>(s_freq.QuadPart * 2 / 1000)) {
-						Sleep(1);
-					} else {
-						for (int i = 0; i < 10; i++) {
-							Sleep(0); 
-						}
-					}
 				}
 			} while (!done);
 		}
 
+		Timer::~Timer(void){
+			timeEndPeriod(1);
+		}
 	private:
-		LARGE_INTEGER frequency_;
-		LARGE_INTEGER start_;
-		
+		DWORD start_;
 		bool running_;
 };
 
