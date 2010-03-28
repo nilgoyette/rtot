@@ -140,28 +140,29 @@ int main(int argc, char** argv) {
             }
         }
 
-        cvShowImage("CamShiftDemo", renderFrame);
-        loop = checkKeys(track, colorThreshold);
-		if (++framecount == 120) {
-			double d = t.elapsed();
-			std::cout << "Display: " << 1 / ((d / 1000) / framecount ) << "fps" << std::endl;
-			framecount = 0;
-		}
 
 		next_game_tick += SKIP_TICKS;
 		register int sleep_time = next_game_tick - timeGetTime();
 		average_sleep = int(average_sleep*0.2f + 0.8f*sleep_time);
 		if( average_sleep > 0 ) {
-			Timer::AccurateSleeprdtsc(average_sleep,cpuspeed);
+			Timer::AccurateSleep(average_sleep);
 		}
+		if (++framecount == 120) {
+			double d = t.elapsed();
+			std::cout << "Display: " << 1 / ((d / 1000) / framecount ) << "fps" << std::endl;
+			framecount = 0;
+		}
+		cvShowImage("CamShiftDemo", renderFrame);
+		loop = checkKeys(track, colorThreshold);
+
+		
 	    
 
     }
 
 	cvReleaseImage(&renderFrame);
 
-    // The call to exit() guarenties that the thread exits without error    
-	
+    // The call to exit() garanties that the thread exits without error    
 	colorThreshold->exit();
 	threadColorThreshold.join();
 
