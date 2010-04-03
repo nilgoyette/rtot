@@ -114,6 +114,14 @@ int main(int argc, char** argv) {
     while (loop) {
 
         // This section will probably change in the future.
+		next_game_tick += SKIP_TICKS;
+		register int sleep_time = next_game_tick - timeGetTime();
+		if( sleep_time > 0 ) {
+			//Sleep(sleep_time);//Timer::AccurateSleep(sleep_time);
+			IplImage* tmp = threadBuffer.read(sleep_time);
+		}else {
+			IplImage* tmp = threadBuffer.read(0);
+		}
 		IplImage* tmp = threadBuffer.read(10);
 		cvCopyImage(tmp,renderFrame);
 		if ( select_object_ &&
@@ -139,11 +147,7 @@ int main(int argc, char** argv) {
         }
 
 
-		next_game_tick += SKIP_TICKS;
-		register int sleep_time = next_game_tick - timeGetTime();
-		if( sleep_time > 0 ) {
-			Sleep(sleep_time);//Timer::AccurateSleep(sleep_time);
-		}
+
 		if (++framecount == 120) {
 			double d = t.elapsed();
 			std::cout << "Display: " << 1 / ((d / 1000) / framecount ) << "fps" << std::endl;
