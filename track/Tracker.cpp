@@ -25,7 +25,7 @@ const Circle& Tracker::process(IplImage* backproject) throw() {
 const Circle& Tracker::getNext() throw() {
 	boost::lock_guard<boost::mutex> lock(trackMutex_);
 	filtered = kalmanFilter_.getNext((t2.elapsed() / 1000));
-	return current;
+	return filtered;
 }
 
 bool Tracker::findBlob(IplImage* image,IplImage* mask) {
