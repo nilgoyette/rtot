@@ -2,10 +2,10 @@
 #ifndef __COLORTHRESHOLD_H__
 #define __COLORTHRESHOLD_H__
 // lightness range in which color are acurate
-#define COLOR_VMAX 240 
+#define COLOR_VMAX 256
 #define COLOR_VMIN 15  
 // minimum saturation 
-#define COLOR_SMIN 30
+#define COLOR_SMIN 10
 #include "cv.h"
 #include "Histogram.h"
 #include "Tracker.h"
