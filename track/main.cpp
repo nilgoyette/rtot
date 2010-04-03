@@ -91,12 +91,10 @@ int main(int argc, char** argv) {
 	const int FRAMES_PER_SECOND = 30;
 	const int SKIP_TICKS = 1000 / FRAMES_PER_SECOND;
 	DWORD next_game_tick = timeGetTime();
-	int average_sleep = SKIP_TICKS;
-
 	cvNamedWindow("CamShiftDemo", 1);
 	cvNamedWindow("backProject", 1);
-	TripleBuffering threadBuffer(resolutionGrab, false);
-	TripleBuffering threadBuffer2(resolutionProcess, true); // TODO : mettre à true!!!
+	TripleBuffering threadBuffer(resolutionGrab, true);
+	TripleBuffering threadBuffer2(resolutionProcess, true); 
     Grabber grabber(0, resolutionGrab, threadBuffer,threadBuffer2);
 	Tracker track(resolutionProcess);
 	colorThreshold = new ColorThreshold(resolutionProcess,threadBuffer2,track);
@@ -116,7 +114,7 @@ int main(int argc, char** argv) {
     while (loop) {
 
         // This section will probably change in the future.
-		IplImage* tmp = threadBuffer.read();
+		IplImage* tmp = threadBuffer.read(10);
 		cvCopyImage(tmp,renderFrame);
 		if ( select_object_ &&
 			 selection_.width > 0 &&
@@ -143,9 +141,8 @@ int main(int argc, char** argv) {
 
 		next_game_tick += SKIP_TICKS;
 		register int sleep_time = next_game_tick - timeGetTime();
-		average_sleep = int(average_sleep*0.2f + 0.8f*sleep_time);
-		if( average_sleep > 0 ) {
-			Timer::AccurateSleep(average_sleep);
+		if( sleep_time > 0 ) {
+			Sleep(sleep_time);//Timer::AccurateSleep(sleep_time);
 		}
 		if (++framecount == 120) {
 			double d = t.elapsed();
