@@ -35,7 +35,27 @@ IplImage* TripleBuffering::read() throw() {
 	if (blocking_) {
 		boost::unique_lock<boost::mutex> lock(mutcond_);
 		while (!ready_) { 
-			boost::system_time timeout = boost::get_system_time() + boost::posix_time::milliseconds(100);
+			cond_.wait(lock);
+		}
+	}
+	if (!ready_) {
+		return buffer3_;
+	}
+
+	ready_ = false;
+	{
+		// Prevent writer from swapping p2 with p1 
+		boost::lock_guard<boost::mutex> lock(mutswap_);
+		swap(buffer2_, buffer3_); // fresh data from p2 now ins p3 
+	}
+	return buffer3_;
+}
+
+IplImage* TripleBuffering::read(int milli) throw() {
+	if (blocking_) {
+		boost::unique_lock<boost::mutex> lock(mutcond_);
+		while (!ready_) { 
+			boost::system_time timeout = boost::get_system_time() + boost::posix_time::milliseconds(milli);
 			bool timedout = cond_.timed_wait(lock, timeout);
 			if (!timedout) {
 				return buffer3_;

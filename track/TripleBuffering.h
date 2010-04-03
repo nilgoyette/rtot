@@ -16,6 +16,7 @@ class TripleBuffering : Uncopiable<> {
 		~TripleBuffering(void) throw();
 		void write(const IplImage* const frame) throw();
 		IplImage* read() throw();
+		IplImage* read(int) throw();
 
 	private:
 		boost::condition_variable cond_;
