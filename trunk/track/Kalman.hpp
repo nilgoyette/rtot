@@ -27,7 +27,7 @@ public:
 		const int dynam_params = 6;
 			
 		const double processNoise = 1e-6f;
-        const double measurementVariance = 1e-6f;
+        const double measurementVariance = 1e-8f;
 		const double measurementZVariace = 1e-5f;
 	    const double measurementVelocityVariance = 1e-5f;
 		const double measurementZVelocityVariance = 1e-3f;
