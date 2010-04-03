@@ -9,7 +9,6 @@ ColorThreshold::ColorThreshold(CvSize size,TripleBuffering& source,Tracker& trac
     : exit_(true),
       source_(source),
 	  track_(track),
-      tempon_(cvCreateImage(size, 8, 1)),
 	  hsv_(cvCreateImage(size, 8, 3)),
       mask_(cvCreateImage(size, 8, 1)),
 	  backproject_(cvCreateImage(size, 8, 1)),
@@ -30,7 +29,6 @@ void ColorThreshold::exit() {
 
 ColorThreshold::~ColorThreshold(void) {
     cvReleaseImage(&backproject_);
-	cvReleaseImage(&tempon_);
 	cvReleaseImage(&hsv_);
 	cvReleaseImage(&mask_);
     cvReleaseStructuringElement(&se21_);
@@ -76,14 +74,12 @@ IplImage* ColorThreshold::process(IplImage* frame) {
 			calcule_hist_ = false;
 		}
 		cvCvtColor(frame, hsv_, CV_BGR2HSV);
-		cvInRangeS(hsv_, cvScalar(0,COLOR_SMIN,COLOR_VMIN,0),cvScalar(180,256,COLOR_VMAX,0), mask_);
+		cvInRangeS(hsv_, cvScalar(0,0,COLOR_VMIN,0),cvScalar(180,256,COLOR_VMAX,0), mask_);
 		cvSmooth(frame, frame, CV_GAUSSIAN, 5, 5, 0, 0);
         hist_.getBackProject(frame, backproject_);	
 		cvAnd(backproject_, mask_, backproject_, 0);
 		cvThreshold(backproject_, backproject_, 100, 255, CV_THRESH_BINARY);
-		cvMorphologyEx(backproject_, backproject_, NULL, se21_, CV_MOP_CLOSE);	
-		cvAddWeighted(backproject_,1.0,tempon_,1.0-(0.4),0,tempon_);
-		cvThreshold(tempon_, backproject_, 100, 255,CV_THRESH_BINARY);
+		cvMorphologyEx(backproject_, backproject_, NULL, se21_, CV_MOP_CLOSE);
 		return backproject_;
     }
     
