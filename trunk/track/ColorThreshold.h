@@ -1,7 +1,11 @@
 
 #ifndef __COLORTHRESHOLD_H__
 #define __COLORTHRESHOLD_H__
-
+// lightness range in which color are acurate
+#define COLOR_VMAX 240 
+#define COLOR_VMIN 15  
+// minimum saturation 
+#define COLOR_SMIN 30
 #include "cv.h"
 #include "Histogram.h"
 #include "Tracker.h"
@@ -22,8 +26,10 @@ class ColorThreshold {
 	private:
 		TripleBuffering& source_; // Concurrent image queue
 		Tracker& track_;
-		IplImage* lab_;
+		IplImage* tempon_;
 		IplImage* backproject_;
+		IplImage* hsv_;
+		IplImage* mask_;
 		int threshold_;
 		IplConvKernel *se21_;
 		IplConvKernel *seHistogram1_;

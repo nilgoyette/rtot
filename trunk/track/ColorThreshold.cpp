@@ -9,11 +9,13 @@ ColorThreshold::ColorThreshold(CvSize size,TripleBuffering& source,Tracker& trac
     : exit_(true),
       source_(source),
 	  track_(track),
-      lab_(cvCreateImage(size, 8, 3)),
+      tempon_(cvCreateImage(size, 8, 1)),
+	  hsv_(cvCreateImage(size, 8, 3)),
+      mask_(cvCreateImage(size, 8, 1)),
 	  backproject_(cvCreateImage(size, 8, 1)),
 	  threshold_(100), 
-      se21_(cvCreateStructuringElementEx((6 * 2) + 1, (6 * 2) + 1, 6, 6, CV_SHAPE_RECT, NULL)),
-      se11_(cvCreateStructuringElementEx((1 * 2) + 1, (1 * 2) + 1, 1, 1, CV_SHAPE_RECT, NULL)),
+      se21_(cvCreateStructuringElementEx((6 * 2) + 1, (6 * 2) + 1, 6, 6, CV_SHAPE_ELLIPSE, NULL)),
+      se11_(cvCreateStructuringElementEx((1 * 2) + 1, (1 * 2) + 1, 1, 1, CV_SHAPE_ELLIPSE, NULL)),
 	  seHistogram1_(cvCreateStructuringElementEx((10 * 2) + 1, (10 * 2) + 1, 10, 10, CV_SHAPE_RECT, NULL)),
 	  seHistogram2_(cvCreateStructuringElementEx((4 * 2) + 1, (4 * 2) + 1, 4, 4, CV_SHAPE_RECT, NULL)),
 	  calcHist_(false),
@@ -28,6 +30,9 @@ void ColorThreshold::exit() {
 
 ColorThreshold::~ColorThreshold(void) {
     cvReleaseImage(&backproject_);
+	cvReleaseImage(&tempon_);
+	cvReleaseImage(&hsv_);
+	cvReleaseImage(&mask_);
     cvReleaseStructuringElement(&se21_);
     cvReleaseStructuringElement(&se11_);
 	cvReleaseStructuringElement(&seHistogram1_);
@@ -42,7 +47,6 @@ void ColorThreshold::on_mouse(int event, int x, int y, int flags, void* param) {
 void ColorThreshold::operator()() throw() {
 	while (exit_) {
 		IplImage* frame = source_.read();
-		//IplImage* cthFrame = bgSeg.process(frame);
 		IplImage* cthFrame = process(frame);
 		track_.process(cthFrame);
 		cvShowImage("backProject", cthFrame);
@@ -68,18 +72,21 @@ IplImage* ColorThreshold::process(IplImage* frame) {
 			CvArr* src = hist_.hist_->bins;
 			cvMorphologyEx(src,src, NULL, seHistogram1_, CV_MOP_CLOSE);
 			cvDilate(src,src,seHistogram2_);
-			hist_.show();
 			track_object_ = true;
 			calcule_hist_ = false;
 		}
-        hist_.getBackProject(frame, backproject_);
-		cvMorphologyEx(backproject_, backproject_, NULL, se11_, CV_MOP_OPEN );  // See completed example for cvOpen  definition
+		cvCvtColor(frame, hsv_, CV_BGR2HSV);
+		cvInRangeS(hsv_, cvScalar(0,COLOR_SMIN,COLOR_VMIN,0),cvScalar(180,256,COLOR_VMAX,0), mask_);
+		cvSmooth(frame, frame, CV_GAUSSIAN, 5, 5, 0, 0);
+        hist_.getBackProject(frame, backproject_);	
+		cvAnd(backproject_, mask_, backproject_, 0);
 		cvThreshold(backproject_, backproject_, 100, 255, CV_THRESH_BINARY);
-		cvMorphologyEx(backproject_, backproject_, NULL, se21_, CV_MOP_CLOSE); // See completed example for cvClose definition	
+		cvMorphologyEx(backproject_, backproject_, NULL, se21_, CV_MOP_CLOSE);	
+		cvAddWeighted(backproject_,1.0,tempon_,1.0-(0.4),0,tempon_);
+		cvThreshold(tempon_, backproject_, 100, 255,CV_THRESH_BINARY);
 		return backproject_;
     }
-    //frame = hist_.aplyRoiToImage(frame,selection_);
-	
+    
     return frame;
 }
 
