@@ -3,7 +3,7 @@
 #define __COLORTHRESHOLD_H__
 // lightness range in which color are acurate
 #define COLOR_VMAX 256
-#define COLOR_VMIN 15  
+#define COLOR_VMIN 10  
 // minimum saturation 
 #define COLOR_SMIN 20
 #include "cv.h"
