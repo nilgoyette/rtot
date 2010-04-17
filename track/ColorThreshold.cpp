@@ -51,33 +51,23 @@ void ColorThreshold::operator()() throw() {
 	}
 }
 
-IplImage* ColorThreshold::process(IplImage* frame) { 
-
-	////segment blue without histogram
-	//cvCvtColor(frame, lab_, CV_BGR2Lab);
-	//cvSplit(lab_, 0, 0, backproject_, 0);
-	//cvThreshold(backproject_, backproject_, 100, 255, CV_THRESH_BINARY);
-	//cvXorS(backproject_, cvScalarAll(255), backproject_, 0);
-	//cvMorphologyEx(backproject_, backproject_, NULL, se21_, CV_MOP_CLOSE); // See completed example for cvClose definition	
- //   track_object_ = true;
-	//return backproject_;
-	
-
+IplImage* ColorThreshold::process(IplImage* frame) {
 	if (track_object_ || calcule_hist_) {
         // Calcule image backproject using histogram
 		if (calcule_hist_) {
-            hist_.createHistogram(frame, selection_);
+			cvCvtColor(frame, hsv_, CV_BGR2HSV);
+			cvInRangeS(hsv_, cvScalar(0,0,COLOR_VMIN,0),cvScalar(180,256,COLOR_VMAX,0), mask_);
+			hist_.createHistogram(frame, selection_,mask_);
 			CvArr* src = hist_.hist_->bins;
 			cvMorphologyEx(src,src, NULL, seHistogram1_, CV_MOP_CLOSE);
+			cvDilate(src,src,seHistogram2_);
 			cvDilate(src,src,seHistogram2_);
 			track_object_ = true;
 			calcule_hist_ = false;
 		}
-		cvCvtColor(frame, hsv_, CV_BGR2HSV);
-		cvInRangeS(hsv_, cvScalar(0,0,COLOR_VMIN,0),cvScalar(180,256,COLOR_VMAX,0), mask_);
 		cvSmooth(frame, frame, CV_GAUSSIAN, 5, 5, 0, 0);
         hist_.getBackProject(frame, backproject_);	
-		cvAnd(backproject_, mask_, backproject_, 0);
+		//cvAnd(backproject_, mask_, backproject_, 0);
 		cvThreshold(backproject_, backproject_, 100, 255, CV_THRESH_BINARY);
 		cvMorphologyEx(backproject_, backproject_, NULL, se21_, CV_MOP_CLOSE);
 		return backproject_;

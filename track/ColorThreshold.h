@@ -5,7 +5,7 @@
 #define COLOR_VMAX 256
 #define COLOR_VMIN 10  
 // minimum saturation 
-#define COLOR_SMIN 20
+#define COLOR_SMIN 30
 #include "cv.h"
 #include "Histogram.h"
 #include "Tracker.h"
