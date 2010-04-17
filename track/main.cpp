@@ -26,6 +26,7 @@ CvSize resolutionProcess = cvSize(160, 120);
 double scale = 0.5;
 
 void on_mouse_event(int event, int x, int y, int flags, void* param ) {
+	x = resolutionGrab.width -x;
 	if (select_object_) {
 		selection_.x = std::min(x, origin_.x);
 		selection_.y = std::min(y, origin_.y);
@@ -86,11 +87,14 @@ void printMenu() {
 }
 
 int main(int argc, char** argv) {	
-	double cpuspeed = Timer::getCpuSpeed();
     //initialize fps limiting variable
 	const int FRAMES_PER_SECOND = 30;
 	const int SKIP_TICKS = 1000 / FRAMES_PER_SECOND;
 	DWORD next_game_tick = timeGetTime();
+
+	char static_array[60];
+	//get printf to use a statically defined buffer to prevent it to call malloc()
+	setvbuf(stdout, static_array, _IOLBF, sizeof(static_array));
 	cvNamedWindow("CamShiftDemo", 1);
 	cvNamedWindow("backProject", 1);
 	TripleBuffering threadBuffer(resolutionGrab, true);
@@ -115,14 +119,13 @@ int main(int argc, char** argv) {
 
         // This section will probably change in the future.
 		next_game_tick += SKIP_TICKS;
-		register int sleep_time = next_game_tick - timeGetTime();
+		int sleep_time = next_game_tick - timeGetTime();
+		IplImage* tmp;
 		if( sleep_time > 0 ) {
-			//Sleep(sleep_time);//Timer::AccurateSleep(sleep_time);
-			IplImage* tmp = threadBuffer.read(sleep_time);
+			tmp = threadBuffer.read(sleep_time/2);
 		}else {
-			IplImage* tmp = threadBuffer.read(0);
+			tmp = threadBuffer.read(0);
 		}
-		IplImage* tmp = threadBuffer.read(10);
 		cvCopyImage(tmp,renderFrame);
 		if ( select_object_ &&
 			 selection_.width > 0 &&
@@ -145,20 +148,24 @@ int main(int argc, char** argv) {
                 cvCircle(renderFrame, filtered.getCenter(), 1, CV_RGB(255, 0, 0), -1, CV_AA, 0);
             }
         }
+		cvFlip(renderFrame,renderFrame,1);
 
-
-
+		//wait for the right time to show the frame
+		sleep_time = next_game_tick - timeGetTime();
+		if (sleep_time > 0){
+			Timer::AccurateSleep(sleep_time -20);
+		}
+		
+		//calculate the rendering fps
 		if (++framecount == 120) {
 			double d = t.elapsed();
-			std::cout << "Display: " << 1 / ((d / 1000) / framecount ) << "fps" << std::endl;
+			printf("Display: %.2f fps\n",1 / ((d / 1000) / framecount ));
+			fflush(stdout);
 			framecount = 0;
 		}
+		//Show the rendered frame now
 		cvShowImage("CamShiftDemo", renderFrame);
 		loop = checkKeys(track, colorThreshold);
-
-		
-	    
-
     }
 
 	cvReleaseImage(&renderFrame);
