@@ -33,7 +33,7 @@ Histogram::~Histogram(void) {
     cvReleaseHist(&hist_);
 }
 
-void Histogram::createHistogram(IplImage* frame,CvRect selection) {
+void Histogram::createHistogram(IplImage* frame,CvRect selection,const CvArr* mask) {
     cvCvtColor(frame, hsv_, CV_BGR2Lab);
     cvSplit(hsv_, NULL, c_h_,c_s_ , 0);
     cvSetImageROI(c_h_, selection);

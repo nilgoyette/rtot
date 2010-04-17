@@ -15,7 +15,7 @@ class Histogram {
 		Histogram(CvSize);
 		~Histogram(void);
 
-		void createHistogram(IplImage* frame, CvRect selection);
+		void createHistogram(IplImage* frame, CvRect selection,const CvArr* mask = 0);
 		void getBackProject(IplImage* frame, IplImage*& backproject);
 		void show();
 		CvHistogram* process(IplImage* frame, CvRect selection);
