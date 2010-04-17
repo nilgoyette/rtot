@@ -1,8 +1,30 @@
 
 #include "Grabber.h"
-
+#include "avrt.h"
 #include <iostream>
+typedef HANDLE (WINAPI *FAvSetMmThreadCharacteristics)  (LPCTSTR,LPDWORD);
+typedef BOOL   (WINAPI *FAvSetMmThreadPriority)         (HANDLE,AVRT_PRIORITY);
+FAvSetMmThreadCharacteristics  pAvSetMmThreadCharacteristics=0;
+FAvSetMmThreadPriority         pAvSetMmThreadPriority=0;
+HMODULE  hDInputDLL = 0;
+#define setupPTR(fun, type, name)  {                                                        \
+	fun = (type) GetProcAddress(hDInputDLL,name);       \
+	if(fun == NULL) {                                   \
+	return;                                   \
+	}                                                   \
+}                                                       \
 
+void setMMThreadPriority()
+	{
+		if (pAvSetMmThreadCharacteristics != 0 && pAvSetMmThreadPriority != 0)
+		{
+			DWORD dummy = 0;
+			HANDLE h = pAvSetMmThreadCharacteristics(TEXT("Pro Audio"), &dummy);
+
+			if (h != 0)
+				pAvSetMmThreadPriority (h,  AVRT_PRIORITY_HIGH);
+		}
+	}
 Grabber::Grabber(const int camId, const CvSize resolution, TripleBuffering& buffer1,TripleBuffering& buffer2) throw()
 		: camId_(camId),
 		  capture_(NULL),
@@ -20,6 +42,12 @@ Grabber::Grabber(const int camId, const CvSize resolution, TripleBuffering& buff
 		printf("Could not initialize capturing...\n");
 		return;
 	}
+
+
+	hDInputDLL = LoadLibraryA("avrt.dll");
+	setupPTR(pAvSetMmThreadCharacteristics,  FAvSetMmThreadCharacteristics,  "AvSetMmThreadCharacteristicsA");
+	setupPTR(pAvSetMmThreadPriority,         FAvSetMmThreadPriority,         "AvSetMmThreadPriority");
+    setMMThreadPriority();
 	initialized_ = true;
 }
 
@@ -32,6 +60,7 @@ Grabber::~Grabber(void) throw() {
 void Grabber::exit(){
     exit_ = false;
 }
+
 
 void Grabber::operator()() throw() {
 	SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS);
