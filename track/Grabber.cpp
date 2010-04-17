@@ -75,11 +75,12 @@ void Grabber::operator()() throw() {
 	while (exit_) {
         beforeGrab();
 		frame = cvQueryFrame(capture_); 
+        DWORD time = timeGetTime();
 		if (!frame) {
 			return;
 		}
-		sink1_.write(frame);
-		sink2_.write(frame);
+		sink1_.write(frame,time);
+		sink2_.write(frame,time);
 	}
 }
 

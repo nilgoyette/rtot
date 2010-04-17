@@ -9,6 +9,7 @@
 #include "TripleBuffering.h"
 #include "ColorThreshold.h"
 #include "Tracker.h"
+#include "TimedImage.hpp"
 
 #ifndef _EiC
 	#include "cv.h"
@@ -112,7 +113,7 @@ int main(int argc, char** argv) {
 	Timer t;
 	t.start();
 	unsigned int framecount = 0;
-
+    unsigned int meanDelay  = 0;
 	bool loop = true;
 
     while (loop) {
@@ -120,13 +121,13 @@ int main(int argc, char** argv) {
         // This section will probably change in the future.
 		next_game_tick += SKIP_TICKS;
 		int sleep_time = next_game_tick - timeGetTime();
-		IplImage* tmp;
+		TimedImage tmp;
 		if( sleep_time > 0 ) {
-			tmp = threadBuffer.read(sleep_time/2);
+			tmp = threadBuffer.read(sleep_time);
 		}else {
 			tmp = threadBuffer.read(0);
 		}
-		cvCopyImage(tmp,renderFrame);
+        cvCopyImage(tmp.image_,renderFrame);
 		if ( select_object_ &&
 			 selection_.width > 0 &&
 			 selection_.height > 0) {
@@ -153,18 +154,31 @@ int main(int argc, char** argv) {
 		//wait for the right time to show the frame
 		sleep_time = next_game_tick - timeGetTime();
 		if (sleep_time > 0){
-			Timer::AccurateSleep(sleep_time);
+			Timer::AccurateSleep(sleep_time/2);
 		}
-		
-		//calculate the rendering fps
+
+         // display stats
+		DWORD ttime = timeGetTime();
+        meanDelay += (ttime - tmp.timeStamp_);
+        
 		if (++framecount == 120) {
-			double d = t.elapsed();
+            double d = t.elapsed();
+            //calculate the rendering fps
 			printf("Display: %.2f fps\n",1 / ((d / 1000) / framecount ));
 			fflush(stdout);
-			framecount = 0;
-		}
-		//Show the rendered frame now
+            
+            //jitter
+           	printf("Display: %d jitter\n",next_game_tick - ttime);
+			fflush(stdout);
+		    printf("Delay: %d ms\n", meanDelay/120);
+            meanDelay = 0;
+		    fflush(stdout);        //Show the rendered frame now
+            framecount = 0;
+        }
+		
+
 		cvShowImage("CamShiftDemo", renderFrame);
+
 		loop = checkKeys(track, colorThreshold);
     }
 
