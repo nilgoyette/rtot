@@ -15,42 +15,6 @@ class Timer {
 			SetThreadAffinityMask(GetCurrentThread(), 1);
 			timeBeginPeriod(1);
 		}
-		static __inline LARGE_INTEGER Timer::rdtsc() {
-			LARGE_INTEGER retval;
-			__asm {
-				CPUID 
-				RDTSC
-					mov retval.HighPart, edx
-					mov retval.LowPart, eax
-			}
-			return retval;
-		}
-		static __inline double Timer::rdtscElapsed(LARGE_INTEGER t1, LARGE_INTEGER t0,double cpuspeed)
-		{  
-			return (double)(t1.QuadPart - t0.QuadPart)/cpuspeed;
-		}
-
-		static __inline double Timer::getCpuSpeed()
-		{  
-			LARGE_INTEGER b = rdtsc();
-			AccurateSleep(1000);
-			LARGE_INTEGER e = rdtsc();
-            return (e.QuadPart-b.QuadPart)/1000.0f;
-		}
-
-		static void Timer::AccurateSleeprdtsc(DWORD milliSeconds,double cpuspeed) {
-			LARGE_INTEGER from, now;
-			from = rdtsc();
-			bool done = false;
-			double ticks_passed;
-			do {
-				now =  rdtsc();
-				ticks_passed = rdtscElapsed(now,from,cpuspeed);
-				if (ticks_passed >= milliSeconds) {
-					done = true;
-				}
-			} while (!done);
-		}
 
 		void Timer::start(void) throw() {
 			if (!running_) {
