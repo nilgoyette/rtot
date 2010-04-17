@@ -123,7 +123,7 @@ int main(int argc, char** argv) {
 		int sleep_time = next_game_tick - timeGetTime();
 		TimedImage tmp;
 		if( sleep_time > 0 ) {
-			tmp = threadBuffer.read(sleep_time);
+			tmp = threadBuffer.read(sleep_time/2);
 		}else {
 			tmp = threadBuffer.read(0);
 		}
@@ -154,7 +154,7 @@ int main(int argc, char** argv) {
 		//wait for the right time to show the frame
 		sleep_time = next_game_tick - timeGetTime();
 		if (sleep_time > 0){
-			Timer::AccurateSleep(sleep_time/2);
+			Timer::AccurateSleep(sleep_time);
 		}
 
          // display stats
