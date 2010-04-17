@@ -6,6 +6,7 @@
 
 #include "cv.h"
 
+#include "TimedImage.hpp"
 #include "Uncopiable.h"
 
 // Boost Mutex map to a CRITICAL_SECTION on Windows
@@ -14,9 +15,9 @@ class TripleBuffering : Uncopiable<> {
 	public:
 		TripleBuffering(const CvSize s, bool) throw();
 		~TripleBuffering(void) throw();
-		void write(const IplImage* const frame) throw();
-		IplImage* read() throw();
-		IplImage* read(int) throw();
+		void write(const IplImage* const frame, DWORD time) throw();
+		TimedImage read() throw();
+		TimedImage read(int) throw();
 
 	private:
 		boost::condition_variable cond_;
@@ -28,6 +29,10 @@ class TripleBuffering : Uncopiable<> {
 		IplImage *buffer1_;
 		IplImage *buffer2_;
 		IplImage *buffer3_;
+
+        DWORD time1_;
+        DWORD time2_;
+        DWORD time3_;
 
 		TripleBuffering(const TripleBuffering&);
 };

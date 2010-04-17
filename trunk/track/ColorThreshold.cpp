@@ -44,8 +44,8 @@ void ColorThreshold::on_mouse(int event, int x, int y, int flags, void* param) {
 
 void ColorThreshold::operator()() throw() {
 	while (exit_) {
-		IplImage* frame = source_.read();
-		IplImage* cthFrame = process(frame);
+		TimedImage frame = source_.read();
+        IplImage* cthFrame = process(frame.image_);
 		track_.process(cthFrame);
 		cvShowImage("backProject", cthFrame);
 	}
