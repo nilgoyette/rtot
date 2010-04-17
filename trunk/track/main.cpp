@@ -153,7 +153,7 @@ int main(int argc, char** argv) {
 		//wait for the right time to show the frame
 		sleep_time = next_game_tick - timeGetTime();
 		if (sleep_time > 0){
-			Timer::AccurateSleep(sleep_time -20);
+			Timer::AccurateSleep(sleep_time);
 		}
 		
 		//calculate the rendering fps
